@@ -138,7 +138,6 @@ dialog::backdrop { background: #20212438; backdrop-filter: blur(3px); }
 #detail-subtitle { margin-top: var(--space-2); }
 .detail-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: var(--space-4) 0 var(--space-5); color: var(--muted); font-size: 12px; }
 .detail-meta > span { white-space: nowrap; }
-#detail-description { max-height: 210px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; margin: var(--space-2) 0 0; padding: var(--space-4); border-radius: var(--radius-md); background: var(--surface-secondary); color: var(--ink); font: inherit; font-size: 13px; line-height: 1.75; }
 #download-link { background: var(--surface-secondary); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
 
 /* Settings: one column of grouped, aligned forms. */

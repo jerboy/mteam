@@ -39,7 +39,9 @@
 .result-card { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: var(--space-3); align-items: center; padding: var(--space-3) 0; border-bottom: 1px solid var(--line); }
 .result-card:last-child { border-bottom-color: transparent; }
 .result-card:hover { background: var(--surface-secondary); }
-.resource-poster { position: relative; display: flex; align-items: center; justify-content: center; width: 44px; height: 64px; overflow: hidden; border-radius: 6px; background: var(--surface-secondary); box-shadow: inset 0 0 0 1px var(--line); flex-shrink: 0; }
+.resource-poster { position: relative; display: flex; align-items: center; justify-content: center; width: 44px; height: 64px; padding: 0; border: 0; overflow: hidden; border-radius: 6px; background: var(--surface-secondary); box-shadow: inset 0 0 0 1px var(--line); flex-shrink: 0; }
+button.resource-poster:not(:disabled) { cursor: zoom-in; }
+button.resource-poster:disabled { opacity: 1; }
 .poster-placeholder { display: flex; color: var(--subtle); }
 .resource-poster img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
 .resource-poster.has-poster img { opacity: 1; }

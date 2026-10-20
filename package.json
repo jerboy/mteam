@@ -1,6 +1,6 @@
 {
   "name": "mteam-browser-extension",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "private": true,
   "license": "MIT",
   "repository": {
@@ -11,10 +11,15 @@
   "description": "M-Team browser extension for Chrome and Edge",
   "scripts": {
     "test": "node --test extension/tests/*.test.js scripts/tests/*.test.mjs",
+    "vendor": "node scripts/vendor.mjs",
     "package": "node scripts/package.mjs",
     "install:local": "node scripts/install-local.mjs"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19"
+  },
+  "devDependencies": {
+    "linkedom": "0.18.13",
+    "marked": "18.1.1"
   }
 }

@@ -4,14 +4,17 @@ import { createPoster } from './lib/poster.js';
 import { RefreshLoop } from './lib/refresh.js';
 import { createDownloadDialog } from './download-dialog.js';
 import { createTaskCenter } from './task-center.js';
+import { renderMarkdown } from './lib/markdown.js';
+import { createImagePreview } from './image-preview.js';
 
 if (new URLSearchParams(location.search).get('view') === 'tab') document.body.classList.add('tab-view');
 const state = { result: null, query: null, categories: [], direction: 'DESC', busy: false, revision: '', detail: null };
 let toastTimer;
 const downloadDialog = createDownloadDialog(toast);
 const taskCenter = createTaskCenter();
+const imagePreview = createImagePreview(document);
 const refreshLoop = new RefreshLoop(() => search(state.query, state.result.pageNumber, { fresh: true }), {
-  canRun: () => state.result && !state.busy && $('filter-panel').hidden && document.visibilityState === 'visible' && !$('detail-dialog').open && !$('link-dialog').open && !$('send-dialog').open && !$('tasks-dialog').open
+  canRun: () => state.result && !state.busy && $('filter-panel').hidden && document.visibilityState === 'visible' && !$('detail-dialog').open && !$('link-dialog').open && !$('send-dialog').open && !$('tasks-dialog').open && !$('image-dialog').open
 });
 
 function toast(text, error = false) {
@@ -115,13 +118,13 @@ async function showDetail(item) {
   const promo = promotion(detail);
   if (promo) metadata.push(`${promo}${detail.discountEndTime ? ` · 截止 ${detail.discountEndTime}` : ''}`);
   $('detail-meta').replaceChildren(...metadata.map(value => node('span', '', value)));
-  $('detail-description').textContent = detail.description || '暂无简介';
+  renderMarkdown($('detail-description'), detail.description, { onPreview: imagePreview.open });
   $('detail-dialog').showModal();
 }
 
 function resultCard(item) {
   const card = node('article', 'result-card');
-  const mark = createPoster(document, item.posterUrl);
+  const mark = createPoster(document, item.posterUrl, { label: item.name, onPreview: imagePreview.open });
   const info = node('div', 'result-info');
   const title = node('button', 'result-title', item.name); title.title = item.name;
   title.addEventListener('click', () => withAction(title, () => showDetail(item)));

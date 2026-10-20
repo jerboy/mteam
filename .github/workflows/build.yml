@@ -30,6 +30,8 @@ jobs:
         with:
           node-version: '24'
           package-manager-cache: false
+      - name: Install unit test dependencies
+        run: npm ci --ignore-scripts
       - name: Run unit tests
         run: npm test
       - name: Check authentication rules against Chromium RE2 limits

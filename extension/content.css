@@ -1,0 +1,41 @@
+/* Resource content follows the same type scale and spacing as the surrounding UI. */
+#detail-description { max-height: min(320px, 42dvh); overflow: auto; margin-top: var(--space-2); padding: var(--space-4); border-radius: var(--radius-md); background: var(--surface-secondary); }
+.markdown-body { color: var(--ink); font-size: 13px; line-height: 1.75; overflow-wrap: anywhere; }
+.markdown-body > :first-child { margin-top: 0; }
+.markdown-body > :last-child { margin-bottom: 0; }
+.markdown-body p, .markdown-body ul, .markdown-body ol, .markdown-body blockquote, .markdown-body pre, .markdown-table { margin: 0 0 var(--space-3); }
+.markdown-body h3, .markdown-body h4, .markdown-body h5, .markdown-body h6 { margin: var(--space-5) 0 var(--space-2); font-weight: 650; line-height: 1.5; }
+.markdown-body h3 { font-size: 16px; }
+.markdown-body h4 { font-size: 14px; }
+.markdown-body h5, .markdown-body h6 { font-size: 13px; }
+.markdown-body ul, .markdown-body ol { padding-left: var(--space-5); }
+.markdown-body li + li { margin-top: var(--space-1); }
+.markdown-body li > ul, .markdown-body li > ol { margin-top: var(--space-1); margin-bottom: 0; }
+.markdown-body li > p { margin-bottom: var(--space-1); }
+.markdown-body .task-list-item { list-style: none; }
+.markdown-body input[type="checkbox"] { width: 14px; height: 14px; margin: 0 6px 0 0; vertical-align: middle; opacity: 1; accent-color: var(--accent); }
+.markdown-body blockquote { padding-left: var(--space-3); border-left: 2px solid var(--control-line); color: var(--muted); }
+.markdown-body blockquote > :last-child { margin-bottom: 0; }
+.markdown-body code { padding: 2px 5px; border-radius: 4px; background: var(--surface); font: 12px/1.65 ui-monospace, SFMono-Regular, Consolas, monospace; }
+.markdown-body pre { overflow: auto; padding: var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
+.markdown-body pre code { padding: 0; background: transparent; white-space: pre; }
+.markdown-body .markdown-fallback { white-space: pre-wrap; font: inherit; }
+.markdown-body hr { border: 0; border-top: 1px solid var(--line); margin: var(--space-4) 0; }
+.markdown-table { max-width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-sm); }
+.markdown-table:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.markdown-table table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 12px; }
+.markdown-table th, .markdown-table td { padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--line); text-align: left; min-width: 72px; }
+.markdown-table th { font-weight: 600; background: var(--surface-hover); }
+.markdown-table tr:last-child td { border-bottom: 0; }
+.description-image { display: inline-block; max-width: 100%; padding: 0; margin: var(--space-1) 0; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--muted); vertical-align: middle; cursor: zoom-in; }
+.description-image img { display: block; max-width: 100%; max-height: 260px; width: auto; height: auto; border-radius: inherit; object-fit: contain; }
+.description-image.image-failed { padding: var(--space-2) var(--space-3); background: var(--surface); font-size: 12px; opacity: 1; }
+
+/* One quiet preview surface for both list artwork and description images. */
+#image-dialog { width: fit-content; min-width: 220px; min-height: 160px; max-width: calc(100vw - 24px); max-height: calc(100dvh - 24px); padding: 52px var(--space-3) var(--space-3); overflow: auto; }
+#image-dialog::backdrop { background: #20212499; }
+#close-image { position: absolute; top: var(--space-3); right: var(--space-3); border-radius: 50%; background: var(--surface-secondary); }
+#close-image:hover { background: var(--surface-hover); }
+#image-stage { display: grid; place-items: center; }
+#image-stage img { display: block; width: auto; height: auto; max-width: min(1120px, calc(100vw - 52px)); max-height: calc(100dvh - 96px); object-fit: contain; border-radius: var(--radius-sm); }
+#image-status { display: grid; place-items: center; min-height: 96px; padding: var(--space-4); color: var(--muted); font-size: 12px; }

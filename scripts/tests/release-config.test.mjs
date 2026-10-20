@@ -21,8 +21,9 @@ test('release filenames cannot contain invalid versions or path segments', () =>
 
 test('release archive includes runtime files and excludes credentials, tests and local artifacts', () => {
   for (const path of ['', 'lib', 'icons', 'background.js', 'path-picker.js', 'popup.html', 'downloaders.css',
-    'manifest.json', 'README.md', 'lib/path-completion.js', 'icons/128.png']) assert.equal(packageEntry(path), true, path);
+    'manifest.json', 'README.md', 'lib/path-completion.js', 'icons/128.png',
+    'vendor', 'vendor/marked.js', 'vendor/marked.LICENSE.md']) assert.equal(packageEntry(path), true, path);
   for (const path of ['.env', '.env.local', '.DS_Store', 'private.key', 'config.json', 'package.json', 'tests',
     'tests/core.test.js', 'node_modules', 'node_modules/lib.js', 'lib/.env', 'icons/private.txt',
-    'artifacts/screenshot.png', 'legacy', '../secret.js']) assert.equal(packageEntry(path), false, path);
+    'artifacts/screenshot.png', 'legacy', '../secret.js', 'vendor/.env', 'vendor/unapproved.js']) assert.equal(packageEntry(path), false, path);
 });

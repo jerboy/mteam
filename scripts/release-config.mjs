@@ -10,6 +10,6 @@ export function releaseVersion(manifest, packages, tag = '') {
 }
 
 export function packageEntry(path) {
-  if (['', 'lib', 'icons'].includes(path)) return true;
+  if (['', 'lib', 'icons', 'vendor', 'vendor/marked.js', 'vendor/marked.LICENSE.md'].includes(path)) return true;
   return /^(?:[a-z][\w-]*\.(?:js|css|html)|manifest\.json|README\.md|lib\/[\w-]+\.js|icons\/(?:16|32|48|128)\.png)$/.test(path);
 }
