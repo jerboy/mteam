@@ -142,9 +142,9 @@ test('a parser failure falls back to inert readable text instead of breaking the
   assert.equal(root.querySelector('img'), null);
 });
 
-test('BBCode image tags render alongside Markdown and form one ordered gallery', () => {
+test('BBCode image tags form one ordered gallery', () => {
   const calls = [];
-  const { root, Event } = render('开头 [img]https://example.org/1.jpg?x=1&amp;y=2[/img]\n\n![截图](https://example.org/2.jpg)\n\n[IMG=600x400]\n https://example.org/3.jpg \n[/IMG]\n\n[img width=800 height=400]https://example.org/4.jpg[/img]', {
+  const { root, Event } = render('开头 [img]https://example.org/1.jpg?x=1&amp;y=2[/img]\n\n[img]https://example.org/2.jpg[/img]\n\n[IMG=600x400]\n https://example.org/3.jpg \n[/IMG]\n\n[img width=800 height=400]https://example.org/4.jpg[/img]', {
     onPreview: (...args) => calls.push(args)
   });
   const buttons = [...root.querySelectorAll('button')];
@@ -161,12 +161,12 @@ test('BBCode image tags render alongside Markdown and form one ordered gallery',
   assert.equal(calls[1][3].length, 3);
 });
 
-test('BBCode works inside lists and quotes while code examples and escaped tags stay literal', () => {
+test('BBCode examples in Markdown code and escaped tags do not select BBCode mode', () => {
   const tag = '[img]https://example.org/a.jpg[/img]';
-  const { root } = render(`- ${tag}\n\n> ${tag}\n\n\`${tag}\`\n\n\`\`\`text\n${tag}\n\`\`\`\n\n\\${tag}`);
-  assert.equal(root.querySelectorAll('img').length, 2);
-  assert.ok(root.querySelector('li img'));
-  assert.ok(root.querySelector('blockquote img'));
+  const { root } = render(`- **列表**\n\n> 引用\n\n\`${tag}\`\n\n\`\`\`text\n${tag}\n\`\`\`\n\n\\${tag}`);
+  assert.equal(root.querySelectorAll('img').length, 0);
+  assert.ok(root.querySelector('li strong'));
+  assert.ok(root.querySelector('blockquote'));
   assert.equal(root.querySelector('code').textContent, tag);
   assert.equal(root.querySelector('pre code').textContent, tag);
   assert.equal(root.lastElementChild.textContent, tag);

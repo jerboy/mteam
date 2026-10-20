@@ -16,6 +16,13 @@
 .markdown-body input[type="checkbox"] { width: 14px; height: 14px; margin: 0 6px 0 0; vertical-align: middle; opacity: 1; accent-color: var(--accent); }
 .markdown-body blockquote { padding-left: var(--space-3); border-left: 2px solid var(--control-line); color: var(--muted); }
 .markdown-body blockquote > :last-child { margin-bottom: 0; }
+.bbcode-author { display: block; margin-bottom: var(--space-2); color: var(--ink); font-size: 12px; font-style: normal; font-weight: 600; }
+.bbcode-text { white-space: pre-wrap; }
+.bbcode-monospace { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.bbcode-spoiler { margin-bottom: var(--space-3); border-bottom: 1px solid var(--line); }
+.bbcode-spoiler > summary { padding: var(--space-2) 0; cursor: pointer; font-weight: 500; }
+.bbcode-spoiler > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.bbcode-spoiler[open] > summary { margin-bottom: var(--space-2); }
 .markdown-body code { padding: 2px 5px; border-radius: 4px; background: var(--surface); font: 12px/1.65 ui-monospace, SFMono-Regular, Consolas, monospace; }
 .markdown-body pre { overflow: auto; padding: var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
 .markdown-body pre code { padding: 0; background: transparent; white-space: pre; }

@@ -5,7 +5,7 @@
 
 简约的 Chrome / Edge 浏览器扩展。搜索 M-Team 资源，并直接发送到自己的 qBittorrent 下载器。无需服务端或运行依赖。
 
-- 搜索、筛选、排序、Markdown 简介与 BBCode 图片；图片预览支持滚轮缩放、拖动和左右切换。
+- 搜索、筛选、排序、BBCode 简介与 Markdown 兼容；图片预览支持滚轮缩放、拖动和左右切换。
 - 多台 qBittorrent，默认使用用户名和密码，也支持 qBittorrent 5.2+ API Key。
 - 可编辑的默认下载路径，远程目录补全、Tab 逐层选择与最近路径建议。
 - 下载任务中心：进度、速度、状态，以及确认后删除任务及文件。
@@ -35,7 +35,7 @@ npm run package
 
 打包结果为 `release/mteam-extension-<版本>.zip` 和对应的 `.sha256` 校验文件。
 
-Markdown 使用 [Marked](https://marked.js.org/using_pro) 的词法解析器，再通过受限 DOM 节点渲染；不插入站点提供的 HTML。Marked 18.1.1 与 MIT 许可证随扩展本地分发。升级锁定依赖后运行 `npm run vendor` 同步文件；单元测试会校验一致性。LinkeDOM 仅用于内存 DOM 单元测试，不进入扩展包。
+简介优先解析 BBCode；没有可识别的 BBCode 时，使用 [Marked](https://marked.js.org/using_pro) 的词法解析器兼容 Markdown。两者均通过受限 DOM 节点渲染，不插入站点提供的 HTML。格式依据、支持范围和降级规则见 [简介格式](docs/description-format.md)。Marked 18.1.1 与 MIT 许可证随扩展本地分发。升级锁定依赖后运行 `npm run vendor` 同步文件；单元测试会校验一致性。LinkeDOM 仅用于内存 DOM 单元测试，不进入扩展包。
 
 CI 另外使用 Python 3.10+ 和 `google-re2` 运行认证规则单元测试，覆盖 Chromium 的 RE2 编译内存限制。该依赖只用于测试，不包含在插件包内。本地运行方式：
 
