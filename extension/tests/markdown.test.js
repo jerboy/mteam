@@ -141,3 +141,54 @@ test('a parser failure falls back to inert readable text instead of breaking the
   assert.equal(root.querySelector('.markdown-fallback').textContent, source);
   assert.equal(root.querySelector('img'), null);
 });
+
+test('BBCode image tags render alongside Markdown and form one ordered gallery', () => {
+  const calls = [];
+  const { root, Event } = render('开头 [img]https://example.org/1.jpg?x=1&amp;y=2[/img]\n\n![截图](https://example.org/2.jpg)\n\n[IMG=600x400]\n https://example.org/3.jpg \n[/IMG]\n\n[img width=800 height=400]https://example.org/4.jpg[/img]', {
+    onPreview: (...args) => calls.push(args)
+  });
+  const buttons = [...root.querySelectorAll('button')];
+  assert.equal(buttons.length, 4);
+  assert.ok(!root.textContent.includes('[img]'));
+  buttons[2].dispatchEvent(new Event('click'));
+  assert.equal(calls[0][0], 'https://example.org/3.jpg');
+  assert.equal(calls[0][2], buttons[2]);
+  assert.deepEqual(calls[0][3].map(item => item.url), [
+    'https://example.org/1.jpg?x=1&y=2', 'https://example.org/2.jpg', 'https://example.org/3.jpg', 'https://example.org/4.jpg'
+  ]);
+  root.querySelector('img').dispatchEvent(new Event('error'));
+  buttons[1].dispatchEvent(new Event('click'));
+  assert.equal(calls[1][3].length, 3);
+});
+
+test('BBCode works inside lists and quotes while code examples and escaped tags stay literal', () => {
+  const tag = '[img]https://example.org/a.jpg[/img]';
+  const { root } = render(`- ${tag}\n\n> ${tag}\n\n\`${tag}\`\n\n\`\`\`text\n${tag}\n\`\`\`\n\n\\${tag}`);
+  assert.equal(root.querySelectorAll('img').length, 2);
+  assert.ok(root.querySelector('li img'));
+  assert.ok(root.querySelector('blockquote img'));
+  assert.equal(root.querySelector('code').textContent, tag);
+  assert.equal(root.querySelector('pre code').textContent, tag);
+  assert.equal(root.lastElementChild.textContent, tag);
+});
+
+test('unsafe or incomplete BBCode remains inert text and cannot introduce HTML or gallery entries', () => {
+  for (const value of ['javascript:alert(1)', 'jav&#x61;script:alert(1)', 'data:image/svg+xml,test',
+    'https://user:secret@example.org/a', 'file:///tmp/a.jpg', '<img src=x onerror=alert(1)>',
+    'https://example.org/&#10;attack', '/options.html']) {
+    const source = `[img]${value}[/img]`;
+    const { root } = render(source);
+    assert.equal(root.querySelectorAll('img,button,script').length, 0, value);
+    assert.equal(root.textContent, source);
+  }
+  const { root } = render('[img]https://example.org/a.jpg');
+  assert.equal(root.querySelector('img'), null);
+});
+
+test('BBCode accepts bracketed URLs but ignores tag attributes rather than applying HTML', () => {
+  const { root } = render('[img width=99999 onerror=alert(1)]https://[2001:db8::1]/a.jpg?size[width]=100[/img]');
+  const img = root.querySelector('img');
+  assert.equal(img.src, 'https://[2001:db8::1]/a.jpg?size[width]=100');
+  assert.equal(img.getAttribute('onerror'), null);
+  assert.equal(img.getAttribute('width'), null);
+});

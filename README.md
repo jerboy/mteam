@@ -5,7 +5,7 @@
 
 简约的 Chrome / Edge 浏览器扩展。搜索 M-Team 资源，并直接发送到自己的 qBittorrent 下载器。无需服务端或运行依赖。
 
-- 搜索、筛选、排序、Markdown 资源简介，以及海报与简介图片预览。
+- 搜索、筛选、排序、Markdown 简介与 BBCode 图片；图片预览支持滚轮缩放、拖动和左右切换。
 - 多台 qBittorrent，默认使用用户名和密码，也支持 qBittorrent 5.2+ API Key。
 - 可编辑的默认下载路径，远程目录补全、Tab 逐层选择与最近路径建议。
 - 下载任务中心：进度、速度、状态，以及确认后删除任务及文件。
@@ -48,7 +48,7 @@ python3 -m venv .venv
 同步到已加载的其他本地目录：
 
 ```sh
-npm run install:local -- /原先加载的扩展目录 1.5.0
+npm run install:local -- /原先加载的扩展目录 1.6.0
 ```
 
 最后一个参数是原安装版本，用来防止误覆盖。同步后在浏览器扩展管理页重新加载。
@@ -63,8 +63,8 @@ npm run install:local -- /原先加载的扩展目录 1.5.0
 
 ```sh
 git push origin main
-git tag -a v1.6.0 -m "Release v1.6.0"
-git push origin v1.6.0
+git tag -a v1.7.0 -m "Release v1.7.0"
+git push origin v1.7.0
 ```
 
 将示例版本替换为尚未发布的新版本。标签必须与三个文件中的版本完全一致。标签触发的工作流会在单元测试通过后打包，并自动创建带 ZIP 和 SHA-256 校验文件的 GitHub Release，使用内置 `GITHUB_TOKEN`，无需配置个人令牌。

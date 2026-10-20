@@ -124,7 +124,9 @@ async function showDetail(item) {
 
 function resultCard(item) {
   const card = node('article', 'result-card');
-  const mark = createPoster(document, item.posterUrl, { label: item.name, onPreview: imagePreview.open });
+  const mark = createPoster(document, item.posterUrl, { label: item.name, onPreview: (url, label, trigger) => {
+    imagePreview.open(url, label, trigger, state.result.items.map(resource => ({ url: resource.posterUrl, label: resource.name })));
+  } });
   const info = node('div', 'result-info');
   const title = node('button', 'result-title', item.name); title.title = item.name;
   title.addEventListener('click', () => withAction(title, () => showDetail(item)));

@@ -1,11 +1,23 @@
-import { Lexer } from '../vendor/marked.js';
+import { Marked } from '../vendor/marked.js';
 import { contentUrl } from './content-url.js';
+
+const markdown = new Marked({ gfm: true, breaks: true, extensions: [{
+  name: 'bbcodeImage',
+  level: 'inline',
+  start: source => source.search(/\[img(?:\]|[=\s])/i),
+  tokenizer(source) {
+    // Ignore presentation attributes; the shared image layout controls dimensions.
+    const match = /^\[img(?:[=\s][^\]\r\n]{0,160})?\]\s*([^\r\n]*?)\s*\[\/img\]/i.exec(source);
+    if (match) return { type: 'bbcodeImage', raw: match[0], href: match[1].trim(), text: '简介图片' };
+  }
+}] });
 
 // Only tokenize Markdown. Site-provided HTML is never inserted into the DOM.
 export function renderMarkdown(target, value, { onPreview = () => {} } = {}) {
   const document = target.ownerDocument;
   const source = String(value || '').slice(0, 30000);
   const entityDecoder = document.createElement('span');
+  const gallery = [];
   function decode(text = '') {
     return text.replace(/&(?:#[xX][\da-fA-F]{1,6}|#\d{1,7}|[a-zA-Z][a-zA-Z\d]{1,31});/g, entity => {
       // This sink accepts a single character reference, never markup or attributes.
@@ -30,7 +42,7 @@ export function renderMarkdown(target, value, { onPreview = () => {} } = {}) {
   function image(token) {
     const label = plainText(token.tokens) || decode(token.text) || '简介图片';
     const url = contentUrl(decode(token.href));
-    if (!url) return document.createTextNode(label);
+    if (!url) return document.createTextNode(token.type === 'bbcodeImage' ? token.raw : label);
     const button = element('button');
     button.type = 'button';
     button.className = 'description-image';
@@ -48,7 +60,10 @@ export function renderMarkdown(target, value, { onPreview = () => {} } = {}) {
       button.removeAttribute('title');
       button.setAttribute('aria-label', `图片加载失败：${label}`);
     }, { once: true });
-    button.addEventListener('click', () => { if (!button.disabled) onPreview(url, label, button); });
+    gallery.push({ url, label, trigger: button });
+    button.addEventListener('click', () => {
+      if (!button.disabled) onPreview(url, label, button, gallery.filter(item => !item.trigger.disabled));
+    });
     img.src = url;
     button.append(img);
     return button;
@@ -131,12 +146,12 @@ export function renderMarkdown(target, value, { onPreview = () => {} } = {}) {
         link.append(content);
         return link;
       }
-      case 'image': return image(token);
+      case 'image': case 'bbcodeImage': return image(token);
       default: return document.createTextNode(token.raw || '');
     }
   }
   try {
-    target.replaceChildren(source.trim() ? children(Lexer.lex(source, { gfm: true, breaks: true })) : element('p', '暂无简介'));
+    target.replaceChildren(source.trim() ? children(markdown.lexer(source)) : element('p', '暂无简介'));
   } catch {
     // A malformed or excessively nested description must not prevent opening details.
     const fallback = element('pre', source || '暂无简介');
