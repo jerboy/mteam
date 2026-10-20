@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "M-Team 资源助手",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "搜索 M-Team 资源、发送到多个 qBittorrent 下载器、查看下载进度和管理任务，并提供结果刷新与定期网页访问。",
   "minimum_chrome_version": "114",
   "permissions": [

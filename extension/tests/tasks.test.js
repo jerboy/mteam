@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { QBittorrent, passwordHeaderRule } from '../lib/qbittorrent.js';
+import { QBittorrent, passwordHeaderRules } from '../lib/qbittorrent.js';
 import { createDownloaders } from '../lib/downloaders.js';
 import { normalizeTask, taskHash, taskIdentity, taskMetrics, taskQuery, taskStatus } from '../lib/tasks.js';
 
@@ -54,7 +54,8 @@ test('task pagination requests a lookahead and returns at most 50 rows', async (
 });
 
 test('header rules allow bounded list queries and single-hash lookup but no delete query or extra endpoint', () => {
-  const pattern = new RegExp(passwordHeaderRule(config, 'own-id').condition.regexFilter);
+  const rules = passwordHeaderRules(config, 'own-id');
+  const pattern = { test: url => rules.some(rule => new RegExp(rule.condition.regexFilter).test(url)) };
   for (const suffix of ['info?filter=all&sort=added_on&reverse=true&limit=51&offset=0', `info?hashes=${hash}`, 'delete']) {
     assert.ok(pattern.test(`${config.url}/api/v2/torrents/${suffix}`));
   }

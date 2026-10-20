@@ -1,23 +1,17 @@
 import { safeError } from './lib/core.js';
 import { createService } from './lib/service.js';
-import { downloaderPermission, passwordHeaderRule } from './lib/qbittorrent.js';
-import { AppError } from './lib/core.js';
+import { createQbtSession } from './lib/qbt-session.js';
 
 // There are no content scripts or externally_connectable entrypoints.
 chrome.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' }).catch(() => {});
+const qbtSession = createQbtSession(chrome);
 const handle = createService({
   storage: chrome.storage.local, downloads: chrome.downloads, alarms: chrome.alarms,
   openTab: options => chrome.tabs.create(options), getURL: path => chrome.runtime.getURL(path),
   apiOptions: { canAccess: origin => chrome.permissions.contains({ origins: [`${origin}/*`] }) },
   qbtOptions: { canAccess: origin => chrome.permissions.contains({ origins: [origin] }) },
-  prepareQbt: async config => {
-    if (!await chrome.permissions.contains({ origins: [downloaderPermission(config.url)] })) {
-      throw new AppError('QBT_PERMISSION', '请在设置中编辑并保存此下载器，授权访问。');
-    }
-    await chrome.declarativeNetRequest.updateSessionRules({ removeRuleIds: [23001],
-      addRules: config.auth === 'password' ? [passwordHeaderRule(config, chrome.runtime.id)] : [] });
-  },
-  cleanupQbt: () => chrome.declarativeNetRequest.updateSessionRules({ removeRuleIds: [23001] })
+  prepareQbt: config => qbtSession.prepare(config),
+  cleanupQbt: () => qbtSession.cleanup()
 });
 
 chrome.runtime.onMessage.addListener((message, sender, respond) => {

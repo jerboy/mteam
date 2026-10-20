@@ -32,6 +32,11 @@ jobs:
           package-manager-cache: false
       - name: Run unit tests
         run: npm test
+      - name: Check authentication rules against Chromium RE2 limits
+        run: |
+          python3 -m venv "$RUNNER_TEMP/re2-tests"
+          "$RUNNER_TEMP/re2-tests/bin/python" -m pip install --only-binary=:all: -r scripts/tests/requirements.txt
+          "$RUNNER_TEMP/re2-tests/bin/python" -m unittest discover -s scripts/tests -p '*_test.py'
       - name: Build extension ZIP and checksum
         id: package
         run: npm run package

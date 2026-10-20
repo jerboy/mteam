@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { QBittorrent, downloaderUrl, downloaderPermission, validateDownloader, publicDownloader, downloadPath, resolveLocation, passwordHeaderRule } from '../lib/qbittorrent.js';
+import { QBittorrent, downloaderUrl, downloaderPermission, validateDownloader, publicDownloader, downloadPath, resolveLocation, passwordHeaderRules } from '../lib/qbittorrent.js';
 import { createDownloaders } from '../lib/downloaders.js';
 import { safeError } from '../lib/core.js';
 import { createService } from '../lib/service.js';
@@ -75,8 +75,8 @@ test('password authentication logs in with a form and sends cookie credentials; 
 });
 
 test('password request header rule matches only known endpoints of the chosen URL and extension', () => {
-  const rule = passwordHeaderRule(keyConfig, 'extension-id');
-  const pattern = new RegExp(rule.condition.regexFilter);
+  const rules = passwordHeaderRules(keyConfig, 'extension-id'), rule = rules[0];
+  const pattern = { test: url => rules.some(item => new RegExp(item.condition.regexFilter).test(url)) };
   assert.deepEqual(rule.condition.initiatorDomains, ['extension-id']);
   assert.ok(pattern.test(`${keyConfig.url}/api/v2/torrents/add`));
   assert.ok(pattern.test(`${keyConfig.url}/api/v2/app/getDirectoryContent?dirPath=%2Fdata%2F&mode=dirs`));

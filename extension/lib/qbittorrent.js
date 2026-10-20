@@ -63,21 +63,34 @@ export function resolveLocation(location = { kind: 'default' }, metadata) {
   throw new AppError('QBT_PATH', '请选择下载目录。');
 }
 
-// Password authentication needs same-origin headers. This rule only applies to
-// this extension's own requests, for the configured URL and known API endpoints.
-export function passwordHeaderRule(config, extensionId) {
+const HEADER_ENDPOINTS = [
+  ['auth/login', 'post'],
+  ['app/defaultSavePath', 'get'],
+  ['app/getDirectoryContent\\?dirPath=[^&#]*&mode=dirs', 'get'],
+  ['torrents/categories', 'get'],
+  ['torrents/add', 'post'],
+  ['torrents/delete', 'post'],
+  ['torrents/info\\?filter=(all|downloading|completed)&sort=added_on&reverse=true&limit=51&offset=[0-9]+', 'get'],
+  ['torrents/info\\?hashes=[a-f0-9]+', 'get']
+];
+export const QBT_HEADER_RULE_IDS = Object.freeze(HEADER_ENDPOINTS.map((_, index) => 23001 + index));
+
+// Chrome limits each compiled RE2 expression to 2 KB. Keep endpoints in separate
+// rules, scoped to this extension, the exact configured base URL and HTTP method.
+export function passwordHeaderRules(config, extensionId) {
   const base = downloaderUrl(config.url);
   const escaped = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return {
-    id: 23001, priority: 1,
+  return HEADER_ENDPOINTS.map(([endpoint, method], index) => ({
+    id: QBT_HEADER_RULE_IDS[index], priority: 1,
     action: { type: 'modifyHeaders', requestHeaders: [
       { header: 'Origin', operation: 'set', value: new URL(base).origin },
       { header: 'Referer', operation: 'set', value: `${base}/` },
       { header: 'Sec-Fetch-Site', operation: 'set', value: 'same-origin' }
     ] },
-    condition: { regexFilter: `^${escaped}/api/v2/(auth/login|app/defaultSavePath|app/getDirectoryContent\\?dirPath=[^&#]*&mode=dirs|torrents/(categories|add|delete|info\\?(filter=(all|downloading|completed)&sort=added_on&reverse=true&limit=51&offset=[0-9]+|hashes=[a-f0-9]+)))$`,
-      initiatorDomains: [extensionId], resourceTypes: ['xmlhttprequest'], isUrlFilterCaseSensitive: true }
-  };
+    condition: { regexFilter: `^${escaped}/api/v2/${endpoint}$`,
+      initiatorDomains: [extensionId], resourceTypes: ['xmlhttprequest'],
+      requestMethods: [method], isUrlFilterCaseSensitive: true }
+  }));
 }
 
 export class QBittorrent {

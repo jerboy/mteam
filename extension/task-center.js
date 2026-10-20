@@ -93,7 +93,7 @@ export function createTaskCenter({ rpc = defaultRpc, timerOptions = {} } = {}) {
     } catch (error) {
       if (version !== generation || !dialog.open) return;
       notice($('tasks-status'), `${rows.size ? '刷新失败，显示上次结果。' : ''}${error.message}`);
-      if (['QBT_AUTH', 'QBT_PERMISSION', 'QBT_CONFIG', 'QBT_CHANGED'].includes(error.code)) loop.setInterval(0);
+      if (['QBT_AUTH', 'QBT_PERMISSION', 'QBT_CONFIG', 'QBT_CHANGED', 'QBT_RULES'].includes(error.code)) loop.setInterval(0);
       else loop.pauseFor(30000);
     } finally {
       reading = false; controls();

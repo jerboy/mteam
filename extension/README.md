@@ -1,4 +1,4 @@
-# M-Team 资源助手 · 1.4.0
+# M-Team 资源助手 · 1.4.1
 
 Chrome / Edge 的 Manifest V3 浏览器扩展。支持搜索、筛选、排序、分页、海报、资源详情、多台 qBittorrent 下载与任务管理、复制下载链接、下载种子、结果刷新和定期打开官网。无需服务端、无需构建运行依赖。
 
@@ -71,6 +71,6 @@ M-Team API 请求仅带 `x-api-key`，明确省略 Cookie。两类 API 都不跟
 npm test
 ```
 
-测试使用模拟 Chrome API、存储和网络响应，不运行界面测试、系统任务实测或真实账号接口测试。GitHub Actions 在相同的单元测试通过后打包发布。
+测试使用模拟 Chrome API、存储和网络响应，不运行界面测试、系统任务实测或真实账号接口测试。GitHub Actions 还会运行 RE2 单元测试，验证认证规则符合 Chromium 每条 2 KB 的编译限制；所有单元测试通过后打包发布。认证规则按接口拆分，并在连接结束后完整清理。
 
 接口依据：[M-Team OpenAPI](https://test2.m-team.cc/api/v3/api-docs)。浏览器定时与标签页依据：[Chrome Alarms](https://developer.chrome.com/docs/extensions/reference/api/alarms)、[Chrome Tabs](https://developer.chrome.com/docs/extensions/reference/api/tabs)。本扩展与 M-Team 无隶属关系。
