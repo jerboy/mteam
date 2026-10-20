@@ -4,7 +4,7 @@ export function createPoster(document, url) {
   wrapper.setAttribute('aria-hidden', 'true');
   const placeholder = document.createElement('span');
   placeholder.className = 'poster-placeholder';
-  placeholder.textContent = '▤';
+  placeholder.setAttribute('data-icon', 'image');
   wrapper.append(placeholder);
   if (!url) return wrapper;
 

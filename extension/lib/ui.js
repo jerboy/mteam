@@ -18,10 +18,11 @@ export function node(tag, className, text) {
   return element;
 }
 
-export function notice(element, text, success = false) {
+export function notice(element, text, tone = false) {
   element.replaceChildren();
   element.textContent = text;
-  element.classList.toggle('success', success);
+  element.classList.toggle('success', tone === true);
+  element.classList.toggle('neutral', tone === 'neutral');
   element.hidden = !text;
 }
 

@@ -3,19 +3,20 @@
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>设置 · M-Team 资源助手</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="downloaders.css"><script type="module" src="options.js"></script></head>
 <body class="options-page">
   <div class="settings-workspace">
-    <header class="topbar"><div class="brand"><img src="icons/48.png" width="36" height="36" alt=""><div><h1>M-Team<span>资源助手</span></h1></div></div><button id="open-search" class="button secondary">搜索 ↗</button></header>
+    <header class="topbar"><div class="brand"><img src="icons/48.png" width="36" height="36" alt=""><div><h1>M-Team<span>资源助手</span></h1></div></div><button id="open-search" class="button subtle" data-icon="expand">搜索</button></header>
     <main class="settings-main">
       <h2>设置 <span id="extension-version" class="tag"></span></h2>
       <form id="settings-form" class="settings-card">
-        <label for="api-key">API Key <span id="key-state" class="tag">未配置</span></label>
+        <div class="section-heading"><h3>M-Team</h3><span id="key-state" class="tag">未配置</span></div>
+        <label for="api-key">API Key</label>
         <div class="key-row"><input id="api-key" type="password" autocomplete="off" spellcheck="false" maxlength="512" placeholder="API Key"><button id="reveal-key" type="button" class="button subtle" aria-label="显示输入的 API Key">显示</button></div>
         <div class="settings-grid"><label>API 地址<select id="api-origin"><option value="https://api.m-team.cc">api.m-team.cc</option><option value="https://api.m-team.io">api.m-team.io</option></select></label><label>每页结果<select id="page-size"><option value="20">20 条</option><option value="50">50 条</option><option value="100">100 条</option></select></label></div>
         <label for="site-origin">网页地址</label><input id="site-origin" type="url" required placeholder="https://kp.m-team.cc">
         <div id="settings-status" class="notice" role="status" hidden></div>
-        <div class="settings-buttons"><button id="save" type="submit" class="button primary">保存</button><button id="test" type="button" class="button secondary">测试连接</button><button id="clear" type="button" class="text-button danger">清除配置</button></div>
+        <div class="settings-buttons"><button id="clear" type="button" class="text-button danger">清除配置</button><button id="test" type="button" class="button secondary">测试连接</button><button id="save" type="submit" class="button primary">保存</button></div>
       </form>
       <section id="downloaders-section" class="settings-card activity-card" aria-labelledby="downloaders-heading">
-        <div class="activity-heading"><h3 id="downloaders-heading">下载器</h3><button id="add-downloader" class="text-button" type="button">＋ 添加 qBittorrent</button></div>
+        <div class="activity-heading"><h3 id="downloaders-heading">下载器</h3><button id="add-downloader" class="text-button" data-icon="plus" type="button" title="添加 qBittorrent">添加</button></div>
         <div id="downloader-list" class="downloader-list"></div>
         <form id="downloader-form" class="downloader-form" hidden>
           <div class="downloader-address-row">
@@ -28,21 +29,21 @@
             <label>密码<input id="qbt-password" type="password" maxlength="1024" autocomplete="new-password"></label>
           </div>
           <label id="qbt-key-field" hidden>API Key<input id="qbt-api-key" type="password" maxlength="1024" placeholder="qbt_…" autocomplete="off" spellcheck="false"></label>
-          <div class="downloader-form-actions"><button id="save-downloader" class="button primary" type="submit">保存</button><button id="cancel-downloader" class="text-button" type="button">取消</button><button id="remove-downloader" class="text-button danger" type="button" hidden>移除</button></div>
+          <div class="downloader-form-actions"><button id="remove-downloader" class="text-button danger" type="button" hidden>移除</button><button id="cancel-downloader" class="button subtle" type="button">取消</button><button id="save-downloader" class="button primary" type="submit">保存</button></div>
         </form>
         <div id="downloader-status" class="notice" role="status" hidden></div>
       </section>
       <section class="settings-card activity-card" aria-labelledby="activity-heading">
         <div class="activity-heading"><h3 id="activity-heading">定期访问</h3><a href="https://wiki.m-team.cc/account-rules" target="_blank" rel="noreferrer">规则 ↗</a></div>
         <form id="visit-form" class="visit-controls">
-          <label class="checkbox"><input id="visit-enabled" type="checkbox">自动访问官网</label>
+          <label class="checkbox switch-control"><input id="visit-enabled" type="checkbox" role="switch">自动访问官网</label>
           <label for="visit-interval" class="sr-only">访问间隔</label><select id="visit-interval"><option value="7">每 7 天</option><option value="14">每 14 天</option><option value="28">每 28 天</option></select>
           <button id="save-visit" type="submit" class="button secondary">保存</button>
         </form>
         <p class="activity-explanation">登录过期时需重新登录。</p>
         <p id="visit-state" class="activity-explanation" hidden></p>
         <p id="browse-state" class="activity-explanation" hidden></p>
-        <div class="settings-buttons"><button id="visit-now" class="text-button" type="button">访问官网 ↗</button><button id="check-activity" class="text-button" type="button">检查浏览时间</button></div>
+        <div class="settings-buttons"><button id="visit-now" class="text-button" type="button" data-icon="expand">访问官网</button><button id="check-activity" class="text-button" type="button">检查浏览时间</button></div>
         <div id="visit-status" class="notice" role="status" hidden></div>
       </section>
     </main>

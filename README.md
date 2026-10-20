@@ -45,10 +45,12 @@ python3 -m venv .venv
 同步到已加载的其他本地目录：
 
 ```sh
-npm run install:local -- /原先加载的扩展目录 1.4.0
+npm run install:local -- /原先加载的扩展目录 1.4.1
 ```
 
 最后一个参数是原安装版本，用来防止误覆盖。同步后在浏览器扩展管理页重新加载。
+
+界面样式与组件约定见 [UI 设计规范](docs/ui.md)。
 
 ## 自动构建与发布
 
@@ -58,8 +60,8 @@ npm run install:local -- /原先加载的扩展目录 1.4.0
 
 ```sh
 git push origin main
-git tag -a v1.4.1 -m "Release v1.4.1"
-git push origin v1.4.1
+git tag -a v1.5.0 -m "Release v1.5.0"
+git push origin v1.5.0
 ```
 
 将示例版本替换为尚未发布的新版本。标签必须与三个文件中的版本完全一致。标签触发的工作流会在单元测试通过后打包，并自动创建带 ZIP 和 SHA-256 校验文件的 GitHub Release，使用内置 `GITHUB_TOKEN`，无需配置个人令牌。

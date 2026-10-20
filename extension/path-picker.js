@@ -25,6 +25,7 @@ export function createPathPicker({ input, menu, list, feedback, status, retry, f
       option.id = `${list.id}-${index}`;
       option.className = 'path-option';
       option.setAttribute('role', 'option');
+      option.setAttribute('data-icon', 'folder');
       option.textContent = path;
       option.title = path;
       // Keep focus in the combobox so pointer selection does not dismiss the list first.

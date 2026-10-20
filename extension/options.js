@@ -14,7 +14,7 @@ function renderVisit(data) {
   $('browse-state').textContent = data.lastWebBrowse ? `最近浏览 ${data.lastWebBrowse}` : '';
   $('browse-state').hidden = !data.lastWebBrowse;
   const messages = { opening: '正在打开…', checking: '已打开，正在确认…', unverified: '未确认登录，请到官网查看。', failed: '打开失败，请重试。' };
-  notice($('visit-status'), messages[data.status] || '');
+  notice($('visit-status'), messages[data.status] || '', ['opening', 'checking'].includes(data.status) ? 'neutral' : false);
 }
 function updateKeyState() {
   const hasKey = Boolean(savedConfig.apiKey);
@@ -44,13 +44,13 @@ $('settings-form').addEventListener('submit', event => {
   });
 });
 $('test').addEventListener('click', () => action(async () => {
-  notice($('settings-status'), '连接中…');
+  notice($('settings-status'), '连接中…', 'neutral');
   const { categoryCount } = await rpc('test');
   notice($('settings-status'), `已连接 · ${categoryCount} 个分类`, true);
 }));
 $('clear').addEventListener('click', () => action(async () => {
   await rpc('config.clear'); await chrome.storage.session.remove('viewState'); savedConfig = {}; $('api-key').value = '';
-  notice($('settings-status'), '已清除');
+  notice($('settings-status'), '已清除', 'neutral');
   renderVisit(await rpc('activity.status'));
 }));
 $('reveal-key').addEventListener('click', () => {

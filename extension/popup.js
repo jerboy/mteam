@@ -14,9 +14,9 @@ const refreshLoop = new RefreshLoop(() => search(state.query, state.result.pageN
   canRun: () => state.result && !state.busy && $('filter-panel').hidden && document.visibilityState === 'visible' && !$('detail-dialog').open && !$('link-dialog').open && !$('send-dialog').open && !$('tasks-dialog').open
 });
 
-function toast(text) {
-  if ($('link-dialog').open) { $('link-status').textContent = text; $('link-status').hidden = false; return; }
-  if ($('detail-dialog').open) { $('detail-status').textContent = text; $('detail-status').hidden = false; return; }
+function toast(text, error = false) {
+  const target = $('link-dialog').open ? $('link-status') : $('detail-dialog').open ? $('detail-status') : null;
+  if (target) { target.textContent = text; target.classList.toggle('error', error); target.hidden = false; return; }
   $('toast').textContent = text; $('toast').hidden = false;
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 3500);
 }
@@ -27,9 +27,12 @@ function setConnection(text, kind = '') {
 
 function empty(title, text, setup = false) {
   const root = node('div', 'empty-state');
-  root.append(node('div', 'empty-symbol', setup ? '⌁' : '⌕'), node('h3', '', title));
+  const symbol = node('div', 'empty-symbol');
+  symbol.setAttribute('data-icon', setup ? 'settings' : 'search');
+  symbol.setAttribute('aria-hidden', 'true');
+  root.append(symbol, node('h3', '', title));
   if (text) root.append(node('p', '', text));
-  if (setup) { const button = node('button', 'button secondary', '前往设置 →'); button.addEventListener('click', () => chrome.runtime.openOptionsPage()); root.append(button); }
+  if (setup) { const button = node('button', 'button secondary', '前往设置'); button.addEventListener('click', () => chrome.runtime.openOptionsPage()); root.append(button); }
   $('results').replaceChildren(root);
 }
 
@@ -59,7 +62,7 @@ function populateQuery(query) {
 
 function renderDirection() {
   const label = state.direction === 'DESC' ? '降序' : '升序';
-  $('direction').textContent = state.direction === 'DESC' ? '↓' : '↑';
+  $('direction').setAttribute('data-direction', state.direction.toLowerCase());
   $('direction').title = `切换为${state.direction === 'DESC' ? '升序' : '降序'}`;
   $('direction').setAttribute('aria-label', `切换排序方向：当前${label}`);
 }
@@ -80,12 +83,17 @@ function closeFilters(restoreFocus = false) {
 
 async function withAction(button, task) {
   const original = button.textContent;
-  button.disabled = true; button.textContent = '处理中…';
+  const changeLabel = !button.classList.contains('icon-button') && !button.classList.contains('result-title');
+  button.disabled = true; button.setAttribute('aria-busy', 'true');
+  if (changeLabel) button.textContent = '处理中…';
   try { await task(); } catch (error) {
-    if ($('link-dialog').open || $('detail-dialog').open) { toast(error.message); }
+    if ($('link-dialog').open || $('detail-dialog').open) { toast(error.message, true); }
     else notice($('notice'), error.message);
   }
-  finally { button.disabled = false; button.textContent = original; }
+  finally {
+    button.disabled = false; button.removeAttribute('aria-busy');
+    if (changeLabel) button.textContent = original;
+  }
 }
 
 async function copyLink(item) {
@@ -125,8 +133,12 @@ function resultCard(item) {
   meta.append(node('span', 'size', formatSize(item.size)), node('span', 'seeds', `↑ ${item.seeders}`), node('span', 'peers', `↓ ${item.leechers}`), node('span', '', categoryName(item.category)), node('span', '', formatDate(item.createdDate)));
   info.append(meta);
   const actions = node('div', 'result-actions');
-  const copy = node('button', 'button secondary', '复制链接'); copy.addEventListener('click', () => withAction(copy, () => copyLink(item)));
-  const save = node('button', 'button primary', '↓ 下载'); save.setAttribute('aria-label', `下载：${item.name}`); save.addEventListener('click', () => withAction(save, () => download(item)));
+  const copy = node('button', 'icon-button');
+  copy.setAttribute('data-icon', 'copy'); copy.setAttribute('aria-label', `复制下载链接：${item.name}`); copy.title = '复制下载链接';
+  copy.addEventListener('click', () => withAction(copy, () => copyLink(item)));
+  const save = node('button', 'button download-action', '下载');
+  save.setAttribute('data-icon', 'download'); save.setAttribute('aria-label', `下载：${item.name}`);
+  save.addEventListener('click', () => withAction(save, () => download(item)));
   actions.append(copy, save); card.append(mark, info, actions);
   return card;
 }

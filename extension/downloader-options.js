@@ -44,7 +44,7 @@ async function render() {
     connect.type = 'button';
     connect.setAttribute('aria-label', `检查连接：${entry.name}`);
     connect.addEventListener('click', () => act(async () => {
-      notice($('downloader-status'), '连接中…');
+      notice($('downloader-status'), '连接中…', 'neutral');
       const result = await rpc('downloaders.test', { downloaderId: entry.id, revision: entry.revision });
       notice($('downloader-status'), `已连接 · ${result.defaultPath}`, true);
     }));

@@ -50,8 +50,9 @@ export function createTaskCenter({ rpc = defaultRpc, timerOptions = {} } = {}) {
       let row = rows.get(task.hash);
       if (!row) {
         row = { root: node('article', 'task-row'), title: node('h3', 'task-name'), status: node('span', 'task-state'),
-          metrics: node('span', 'task-metrics'), progress: node('progress', 'task-progress'), remove: node('button', 'text-button task-remove', '删除') };
+          metrics: node('span', 'task-metrics'), progress: node('progress', 'task-progress'), remove: node('button', 'icon-button task-remove') };
         row.remove.type = 'button';
+        row.remove.setAttribute('data-icon', 'trash'); row.remove.title = '删除任务及文件';
         row.remove.addEventListener('click', () => confirmDelete(row.task));
         const heading = node('div', 'task-heading'), meta = node('div', 'task-meta');
         heading.append(row.title, row.remove); meta.append(row.status, row.metrics);
@@ -81,7 +82,7 @@ export function createTaskCenter({ rpc = defaultRpc, timerOptions = {} } = {}) {
     if (reading) { queued = true; return; }
     const version = generation, entry = target();
     reading = true; controls();
-    if (!rows.size) notice($('tasks-status'), '读取中…');
+    if (!rows.size) notice($('tasks-status'), '读取中…', 'neutral');
     try {
       const data = await rpc('downloaders.tasks', { downloaderId: entry.id, revision: entry.revision, page, filter: $('tasks-filter').value });
       if (version !== generation || !dialog.open) return;
@@ -107,7 +108,7 @@ export function createTaskCenter({ rpc = defaultRpc, timerOptions = {} } = {}) {
     $('tasks-downloader').replaceChildren(new Option('读取中…', ''));
     $('tasks-setup').hidden = true;
     dialog.showModal();
-    notice($('tasks-status'), '读取中…');
+    notice($('tasks-status'), '读取中…', 'neutral');
     const version = generation;
     try {
       const data = await rpc('downloaders.list');
@@ -118,7 +119,7 @@ export function createTaskCenter({ rpc = defaultRpc, timerOptions = {} } = {}) {
       if (entries.some(entry => entry.id === id)) $('tasks-downloader').value = id;
       $('tasks-setup').hidden = Boolean(entries.length);
       if (entries.length) await refresh();
-      else notice($('tasks-status'), '尚未添加下载器');
+      else notice($('tasks-status'), '尚未添加下载器', 'neutral');
     } catch (error) {
       if (version === generation && dialog.open) notice($('tasks-status'), error.message);
     } finally {
