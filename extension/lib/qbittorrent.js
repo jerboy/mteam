@@ -1,4 +1,5 @@
 import { AppError, mteamUrl } from './core.js';
+import { normalizeTask, sameTask, taskHash, taskQuery, TASK_PAGE_SIZE } from './tasks.js';
 
 export function downloaderUrl(value) {
   const text = String(value || '').trim();
@@ -74,7 +75,7 @@ export function passwordHeaderRule(config, extensionId) {
       { header: 'Referer', operation: 'set', value: `${base}/` },
       { header: 'Sec-Fetch-Site', operation: 'set', value: 'same-origin' }
     ] },
-    condition: { regexFilter: `^${escaped}/api/v2/(auth/login|app/defaultSavePath|app/getDirectoryContent\\?dirPath=[^&#]*&mode=dirs|torrents/(categories|add))$`,
+    condition: { regexFilter: `^${escaped}/api/v2/(auth/login|app/defaultSavePath|app/getDirectoryContent\\?dirPath=[^&#]*&mode=dirs|torrents/(categories|add|delete|info\\?(filter=(all|downloading|completed)&sort=added_on&reverse=true&limit=51&offset=[0-9]+|hashes=[a-f0-9]+)))$`,
       initiatorDomains: [extensionId], resourceTypes: ['xmlhttprequest'], isUrlFilterCaseSensitive: true }
   };
 }
@@ -85,7 +86,7 @@ export class QBittorrent {
     this.fetchFn = fetchFn; this.canAccess = canAccess; this.timeout = timeout;
   }
 
-  async request(endpoint, { body, query, json = false, submission = false, timeout = this.timeout } = {}) {
+  async request(endpoint, { body, query, json = false, submission = false, deletion = false, timeout = this.timeout } = {}) {
     if (!await this.canAccess(downloaderPermission(this.config.url))) {
       throw new AppError('QBT_PERMISSION', '请在设置中编辑并保存此下载器，授权访问。');
     }
@@ -105,15 +106,15 @@ export class QBittorrent {
       if ([401, 403].includes(response.status)) throw new AppError('QBT_AUTH',
         this.config.auth === 'apikey' ? '认证失败，请检查 API Key 和版本（需 5.2+）。' : '认证失败，请检查账号、密码及 WebUI 访问设置。');
       if (response.status === 404) throw new AppError('QBT_URL', '未找到 qBittorrent 接口，请检查 URL。');
-      if (!response.ok) throw new AppError(submission ? 'QBT_UNCERTAIN' : 'QBT_HTTP',
-        submission ? '提交未获确认，请先到下载器中查看。' : '下载器请求失败，请稍后重试。');
+      if (!response.ok) throw new AppError(submission || deletion ? 'QBT_UNCERTAIN' : 'QBT_HTTP',
+        deletion ? '删除结果未知，请到下载器中确认。' : submission ? '提交未获确认，请先到下载器中查看。' : '下载器请求失败，请稍后重试。');
       const text = await response.text();
       if (!json) return text.trim();
       try { return JSON.parse(text); } catch { throw new AppError('QBT_RESPONSE', '下载器返回了无效数据，请检查 URL。'); }
     } catch (error) {
       if (error instanceof AppError) throw error;
-      throw new AppError(submission ? 'QBT_UNCERTAIN' : 'QBT_NETWORK',
-        submission ? '提交结果未知，请先到下载器中查看。' : '无法连接下载器，请检查地址、网络和证书。');
+      throw new AppError(submission || deletion ? 'QBT_UNCERTAIN' : 'QBT_NETWORK',
+        deletion ? '删除结果未知，请到下载器中确认。' : submission ? '提交结果未知，请先到下载器中查看。' : '无法连接下载器，请检查地址、网络和证书。');
     } finally { clearTimeout(timer); }
   }
 
@@ -163,5 +164,30 @@ export class QBittorrent {
     if (reply === 'Fails.') throw new AppError('QBT_ADD', '下载器未接受此资源。');
     if (reply !== 'Ok.') throw new AppError('QBT_UNCERTAIN', '提交未获确认，请先到下载器中查看。');
     return { submitted: true };
+  }
+
+  async tasks(options) {
+    const raw = await this.request('torrents/info', { query: taskQuery(options), json: true });
+    if (!Array.isArray(raw)) throw new AppError('QBT_RESPONSE', '无法读取下载任务。');
+    return { items: raw.slice(0, TASK_PAGE_SIZE).map(normalizeTask), hasMore: raw.length > TASK_PAGE_SIZE };
+  }
+
+  async deleteTask(hash, expected) {
+    const id = taskHash(hash);
+    // Recheck the exact task immediately before deletion. A changed name, path or
+    // re-added torrent must be reviewed again, never deleted from a stale row.
+    const raw = await this.request('torrents/info', { query: { hashes: id }, json: true });
+    if (!Array.isArray(raw)) throw new AppError('QBT_RESPONSE', '无法确认下载任务。');
+    if (!raw.length) throw new AppError('QBT_TASK_GONE', '任务已不存在，请刷新列表。');
+    if (raw.length !== 1) throw new AppError('QBT_TASK_CHANGED', '任务已变更，请刷新后重新确认。');
+    const current = normalizeTask(raw[0]);
+    if (current.hash !== id || !sameTask(current, expected)) {
+      throw new AppError('QBT_TASK_CHANGED', '任务已变更，请刷新后重新确认。');
+    }
+    const result = await this.request('torrents/delete', {
+      body: new URLSearchParams({ hashes: id, deleteFiles: 'true' }), deletion: true
+    });
+    if (result !== '') throw new AppError('QBT_UNCERTAIN', '删除未获确认，请到下载器中查看。');
+    return { requested: true };
   }
 }

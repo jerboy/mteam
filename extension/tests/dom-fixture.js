@@ -15,6 +15,7 @@ export class Element {
   getAttribute(name) { return this.attributes[name] ?? null; }
   removeAttribute(name) { delete this.attributes[name]; }
   contains(element) { return element === this || this.children.some(child => child.contains?.(element)); }
+  append(...children) { this.children.push(...children); }
   replaceChildren(...children) {
     this.children = children;
     if (this.tagName === 'select') this.value = children[0]?.value || '';
@@ -35,10 +36,12 @@ export function mockDocument(t) {
   const previous = { document: globalThis.document, Option: globalThis.Option };
   const elements = new Map();
   const get = id => {
-    if (!elements.has(id)) elements.set(id, new Element(['send-downloader', 'send-location'].includes(id) ? 'select' : 'div', id));
+    if (!elements.has(id)) elements.set(id, new Element(['send-downloader', 'send-location', 'tasks-downloader', 'tasks-filter'].includes(id) ? 'select' : 'div', id));
     return elements.get(id);
   };
-  globalThis.document = { getElementById: get, createElement: tag => new Element(tag), activeElement: null };
+  globalThis.document = Object.assign(new Element('document'), {
+    getElementById: get, createElement: tag => new Element(tag), activeElement: null, visibilityState: 'visible'
+  });
   globalThis.Option = class { constructor(label, value) { this.label = label; this.value = value; } };
   t.after(() => Object.assign(globalThis, previous));
   return get;

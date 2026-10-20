@@ -3,13 +3,15 @@ import { $, node, rpc, notice, promotion, formatDate } from './lib/ui.js';
 import { createPoster } from './lib/poster.js';
 import { RefreshLoop } from './lib/refresh.js';
 import { createDownloadDialog } from './download-dialog.js';
+import { createTaskCenter } from './task-center.js';
 
 if (new URLSearchParams(location.search).get('view') === 'tab') document.body.classList.add('tab-view');
 const state = { result: null, query: null, categories: [], direction: 'DESC', busy: false, revision: '', detail: null };
 let toastTimer;
 const downloadDialog = createDownloadDialog(toast);
+const taskCenter = createTaskCenter();
 const refreshLoop = new RefreshLoop(() => search(state.query, state.result.pageNumber, { fresh: true }), {
-  canRun: () => state.result && !state.busy && $('filter-panel').hidden && document.visibilityState === 'visible' && !$('detail-dialog').open && !$('link-dialog').open && !$('send-dialog').open
+  canRun: () => state.result && !state.busy && $('filter-panel').hidden && document.visibilityState === 'visible' && !$('detail-dialog').open && !$('link-dialog').open && !$('send-dialog').open && !$('tasks-dialog').open
 });
 
 function toast(text) {
@@ -170,6 +172,7 @@ async function search(query, pageNumber = 1, { fresh = false } = {}) {
 }
 
 $('settings').addEventListener('click', () => chrome.runtime.openOptionsPage());
+$('open-tasks').addEventListener('click', () => taskCenter.open());
 $('auto-refresh').addEventListener('change', () => refreshLoop.setInterval(Number($('auto-refresh').value)));
 $('refresh-results').addEventListener('click', () => { if (state.result) search(state.query, state.result.pageNumber, { fresh: true }); });
 $('dashboard').addEventListener('click', () => withAction($('dashboard'), () => rpc('open.dashboard')));

@@ -1,5 +1,6 @@
 import { AppError, torrentId } from './core.js';
 import { QBittorrent, downloadPath, publicDownloader, resolveLocation, validateDownloader } from './qbittorrent.js';
+import { taskHash, taskQuery } from './tasks.js';
 
 export function createDownloaders({ storage, makeLink, qbtOptions = {}, prepare = async () => {}, cleanup = async () => {} }) {
   // Serialize credential changes and cookie sessions, including multiple instances
@@ -82,6 +83,20 @@ export function createDownloaders({ storage, makeLink, qbtOptions = {}, prepare 
         const directory = downloadPath(message.directory);
         return connected(config, client => client.directories(directory), true);
       }
+      case 'downloaders.tasks': {
+        const config = selected(items, message.downloaderId, message.revision);
+        taskQuery(message);
+        return connected(config, client => client.tasks(message), true);
+      }
+      case 'downloaders.deleteTask': {
+        if (message.confirmed !== true || !message.revision || !message.expected) {
+          throw new AppError('QBT_CONFIRM', '请确认要删除的任务及文件。');
+        }
+        const hash = taskHash(message.hash);
+        const config = selected(items, message.downloaderId, message.revision);
+        // A mutation gets a fresh login and is never replayed after an auth error.
+        return connected(config, client => client.deleteTask(hash, message.expected));
+      }
       case 'downloaders.send': {
         const id = torrentId(message.id);
         const config = selected(items, message.downloaderId, message.revision);
@@ -106,9 +121,9 @@ export function createDownloaders({ storage, makeLink, qbtOptions = {}, prepare 
     }
   }
   return message => {
-    if (message.type !== 'downloaders.send') return serial(() => run(message));
-    const key = `${message.downloaderId}:${message.id}`;
-    if (pending.has(key)) return Promise.reject(new AppError('QBT_BUSY', '此资源正在提交。'));
+    if (!['downloaders.send', 'downloaders.deleteTask'].includes(message.type)) return serial(() => run(message));
+    const key = `${message.type}:${message.downloaderId}:${message.type === 'downloaders.send' ? message.id : String(message.hash).toLowerCase()}`;
+    if (pending.has(key)) return Promise.reject(new AppError('QBT_BUSY', '此任务正在处理。'));
     pending.add(key);
     return serial(() => run(message)).finally(() => pending.delete(key));
   };

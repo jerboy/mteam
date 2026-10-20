@@ -8,6 +8,7 @@
 - 搜索、筛选、排序、海报与资源详情。
 - 多台 qBittorrent，默认使用用户名和密码，也支持 qBittorrent 5.2+ API Key。
 - 可编辑的默认下载路径，远程目录补全、Tab 逐层选择与最近路径建议。
+- 下载任务中心：进度、速度、状态，以及确认后删除任务及文件。
 - 复制下载链接、保存种子文件、手动与定时刷新结果。
 - 可选的定期打开官网，以及最近网页浏览时间检查。
 
@@ -49,8 +50,8 @@ npm run install:local -- /原先加载的扩展目录 1.3.3
 
 ```sh
 git push origin main
-git tag -a v1.3.3 -m "Release v1.3.3"
-git push origin v1.3.3
+git tag -a v1.4.0 -m "Release v1.4.0"
+git push origin v1.4.0
 ```
 
 将示例版本替换为尚未发布的新版本。标签必须与三个文件中的版本完全一致。标签触发的工作流会在单元测试通过后打包，并自动创建带 ZIP 和 SHA-256 校验文件的 GitHub Release，使用内置 `GITHUB_TOKEN`，无需配置个人令牌。

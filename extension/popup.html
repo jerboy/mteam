@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="popup.css">
   <link rel="stylesheet" href="downloaders.css">
+  <link rel="stylesheet" href="tasks.css">
   <script type="module" src="popup.js"></script>
 </head>
 <body class="search-page">
@@ -15,6 +16,7 @@
       <div class="brand"><img src="icons/48.png" width="36" height="36" alt=""><div><h1>M-Team<span>资源助手</span></h1></div></div>
       <nav class="header-actions" aria-label="工具">
         <span id="connection" class="connection">未配置</span>
+        <button id="open-tasks" class="icon-button" title="下载任务" aria-label="下载任务">任务</button>
         <button id="dashboard" class="icon-button" title="在新标签页打开" aria-label="在新标签页打开">↗</button>
         <button id="settings" class="icon-button" title="设置" aria-label="设置">⚙</button>
       </nav>
@@ -80,6 +82,25 @@
       <div id="send-status" class="notice" role="status" hidden></div>
       <div class="send-actions"><button id="save-torrent-file" class="text-button" type="button">保存种子文件</button><button id="send-submit" class="button primary" type="submit" disabled>开始下载</button></div>
     </form>
+  </dialog>
+  <dialog id="tasks-dialog" aria-labelledby="tasks-title">
+    <div class="dialog-header"><h2 id="tasks-title">下载任务</h2><button id="close-tasks" class="icon-button" aria-label="关闭任务中心">×</button></div>
+    <div class="tasks-toolbar">
+      <select id="tasks-downloader" aria-label="下载器"></select>
+      <select id="tasks-filter" aria-label="任务状态"><option value="all">全部任务</option><option value="downloading">下载中</option><option value="completed">已完成</option></select>
+      <button id="tasks-refresh" class="icon-button" title="刷新任务" aria-label="刷新任务">↻</button>
+    </div>
+    <div id="tasks-list" aria-label="下载任务列表"></div>
+    <div id="tasks-status" class="notice" role="status" hidden></div>
+    <button id="tasks-setup" class="text-button" hidden>添加下载器 →</button>
+    <div class="tasks-footer"><span id="tasks-page"></span><div><button id="tasks-previous" class="button subtle" aria-label="上一页任务">←</button><button id="tasks-next" class="button subtle" aria-label="下一页任务">→</button></div></div>
+  </dialog>
+  <dialog id="task-delete-dialog" aria-labelledby="task-delete-title">
+    <div class="dialog-header"><h2 id="task-delete-title">删除任务</h2><button id="close-task-delete" class="icon-button" aria-label="取消删除">×</button></div>
+    <p id="task-delete-name"></p><p id="task-delete-path"></p>
+    <p class="delete-consequence">同时删除下载器上的文件，无法撤销。</p>
+    <div id="task-delete-status" class="notice" role="status" hidden></div>
+    <div class="dialog-actions"><button id="task-delete-cancel" class="button subtle" autofocus>取消</button><button id="task-delete-confirm" class="button delete-button">删除任务及文件</button></div>
   </dialog>
   <div id="toast" class="toast" role="status" hidden></div>
 </body>
