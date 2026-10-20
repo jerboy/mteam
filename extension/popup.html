@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>M-Team 资源助手</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="downloaders.css">
+  <script type="module" src="popup.js"></script>
+</head>
+<body class="search-page">
+  <div class="workspace">
+    <header class="topbar">
+      <div class="brand"><img src="icons/48.png" width="36" height="36" alt=""><div><h1>M-Team<span>资源助手</span></h1></div></div>
+      <nav class="header-actions" aria-label="工具">
+        <span id="connection" class="connection">未配置</span>
+        <button id="dashboard" class="icon-button" title="在新标签页打开" aria-label="在新标签页打开">↗</button>
+        <button id="settings" class="icon-button" title="设置" aria-label="设置">⚙</button>
+      </nav>
+    </header>
+    <main>
+      <section class="search-panel" aria-label="搜索资源">
+        <form id="search-form">
+          <div class="search-input-row">
+            <label class="search-input-wrap"><svg class="search-symbol" aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg><span class="sr-only">搜索关键词</span><input id="keyword" type="search" maxlength="100" placeholder="搜索资源" autocomplete="off" autofocus></label>
+            <button id="search-button" class="button primary" type="submit">搜索</button>
+          </div>
+        </form>
+      </section>
+      <div id="notice" class="notice" role="status" hidden></div>
+      <section class="results-section" aria-labelledby="results-title">
+        <div class="results-toolbar">
+          <h2 id="results-title">资源 <span id="result-count"></span></h2>
+          <div class="result-controls">
+            <select id="sort" form="search-form" aria-label="排序方式" title="排序方式"><option value="CREATED_DATE">发布时间</option><option value="SEEDERS">做种人数</option><option value="SIZE">文件大小</option><option value="TIMES_COMPLETED">完成次数</option><option value="LEECHERS">下载人数</option><option value="NAME">资源名称</option></select>
+            <button id="direction" type="button" class="icon-button" title="切换为升序" aria-label="切换排序方向：当前降序">↓</button>
+            <button id="filters-toggle" type="button" class="filter-toggle" aria-expanded="false" aria-controls="filter-panel"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 5h12M2 11h12"/><path d="M5 3v4M11 9v4"/></svg>筛选<span id="filter-count" class="filter-count" hidden></span></button>
+            <button id="refresh-results" class="icon-button" title="刷新结果" aria-label="刷新结果" disabled>↻</button>
+          </div>
+          <div id="filter-panel" class="filter-panel" role="group" aria-label="筛选条件" hidden>
+            <div class="filters">
+              <label>分区<select id="mode" form="search-form"><option value="normal">综合区</option><option value="movie">电影</option><option value="tvshow">剧集</option><option value="anime">动漫</option><option value="music">音乐</option><option value="all">全部分区</option><option value="adult">成人区</option></select></label>
+              <label>分类<select id="category" form="search-form"><option value="">全部分类</option></select></label>
+              <label>促销<select id="discount" form="search-form"><option value="">全部促销</option><option value="FREE">Free · 免费</option><option value="_2X_FREE">2× Free</option><option value="PERCENT_50">50% 下载</option><option value="PERCENT_70">30% 下载</option><option value="_2X">2× 上传</option><option value="_2X_PERCENT_50">2× / 50%</option><option value="NORMAL">普通资源</option></select></label>
+            </div>
+            <div class="filter-preferences"><label class="checkbox"><input id="only-fav" type="checkbox" form="search-form">只看收藏</label><label class="refresh-preference">自动刷新<select id="auto-refresh"><option value="0">关闭</option><option value="300000">每 5 分钟</option><option value="900000">每 15 分钟</option><option value="1800000">每 30 分钟</option></select></label></div>
+            <div class="filter-actions"><button id="clear-filters" class="text-button" type="button">重置</button><button id="apply-filters" class="button primary" type="submit" form="search-form">应用</button></div>
+          </div>
+        </div>
+        <div id="results" class="results" aria-live="polite"></div>
+      </section>
+    </main>
+    <footer class="pagination"><span id="page-info">尚未搜索</span><div><button id="previous" class="button subtle" disabled>← 上一页</button><button id="next" class="button subtle" disabled>下一页 →</button></div></footer>
+  </div>
+  <dialog id="detail-dialog" aria-labelledby="detail-title">
+    <div class="dialog-header"><span class="detail-label">详情</span><button class="icon-button" id="close-detail" aria-label="关闭详情">×</button></div>
+    <h2 id="detail-title">资源详情</h2><p id="detail-subtitle" class="muted"></p><div id="detail-meta" class="detail-meta"></div>
+    <div class="detail-label">资源简介</div><pre id="detail-description"></pre>
+    <p id="detail-status" class="dialog-status" role="status" hidden></p><div class="dialog-actions"><button id="detail-open" class="button subtle">打开站点 ↗</button><button id="detail-copy" class="button secondary">复制链接</button><button id="detail-download" class="button primary">下载</button></div>
+  </dialog>
+  <dialog id="link-dialog" aria-labelledby="link-title"><div class="dialog-header"><h2 id="link-title">下载链接</h2><button id="close-link" class="icon-button" aria-label="关闭链接">×</button></div><label class="sr-only" for="download-link">下载链接</label><textarea id="download-link" readonly rows="4" spellcheck="false"></textarea><p id="link-status" class="dialog-status" role="status" hidden></p><div class="dialog-actions"><button id="copy-again" class="button primary">复制链接</button></div></dialog>
+  <dialog id="send-dialog" aria-labelledby="send-title">
+    <div class="dialog-header"><h2 id="send-title">下载</h2><button id="close-send" class="icon-button" aria-label="关闭下载">×</button></div>
+    <p id="send-resource" class="send-resource"></p>
+    <form id="send-form">
+      <div id="send-empty" class="send-empty" hidden><span>添加你的 qBittorrent</span><button id="setup-downloader" class="button secondary" type="button">添加 →</button></div>
+      <div id="send-fields">
+        <label class="send-field">下载器<select id="send-downloader" required></select></label>
+        <div id="send-custom-field" class="send-field">
+          <div class="send-path-heading"><label for="send-custom-path">下载目录</label><select id="send-location" aria-label="目录来源" disabled hidden></select></div>
+          <input id="send-custom-path" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="send-path-suggestions" maxlength="1024" placeholder="输入路径 · Tab 补全" spellcheck="false" autocomplete="off" required disabled>
+          <div id="send-path-menu" class="path-menu" hidden>
+            <div id="send-path-suggestions" role="listbox" aria-label="匹配目录"></div>
+            <div id="send-path-feedback" class="path-status" hidden><span id="send-path-status" role="status"></span><button id="send-path-retry" class="path-retry" type="button" hidden>重试</button></div>
+          </div>
+        </div>
+        <p id="send-path-preview" class="send-path-preview" hidden></p>
+      </div>
+      <div id="send-status" class="notice" role="status" hidden></div>
+      <div class="send-actions"><button id="save-torrent-file" class="text-button" type="button">保存种子文件</button><button id="send-submit" class="button primary" type="submit" disabled>开始下载</button></div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>

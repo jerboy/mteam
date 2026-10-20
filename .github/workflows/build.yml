@@ -1,0 +1,81 @@
+name: Build and release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Unit tests and extension package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.package.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Run unit tests
+        run: npm test
+      - name: Build extension ZIP and checksum
+        id: package
+        run: npm run package
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: mteam-extension-${{ steps.package.outputs.version }}
+          path: |
+            release/*.zip
+            release/*.sha256
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Publish GitHub Release
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: mteam-extension-${{ needs.build.outputs.version }}
+          path: release
+      - name: Verify package checksum
+        working-directory: release
+        run: sha256sum --check ./*.sha256
+      - name: Publish extension package
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          cat > "$RUNNER_TEMP/release-notes.md" <<'NOTES'
+          Chrome / Edge 浏览器扩展安装包。
+
+          1. 下载下方的 `mteam-extension-*.zip` 并解压。
+          2. 打开 `chrome://extensions` 或 `edge://extensions`，开启开发者模式。
+          3. 点击「加载已解压的扩展程序」，选择解压后的 `mteam-extension` 文件夹。
+
+          更新时将文件覆盖到原安装目录，再点击「重新加载」，保留原扩展 ID 和设置。
+          `.sha256` 文件用于校验 ZIP。无需启动服务器。
+          NOTES
+          gh release create "$RELEASE_TAG" release/*.zip release/*.sha256 \
+            --verify-tag --title "M-Team 资源助手 $RELEASE_TAG" \
+            --notes-file "$RUNNER_TEMP/release-notes.md"
