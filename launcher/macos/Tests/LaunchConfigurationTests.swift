@@ -39,7 +39,7 @@ import Foundation
                 let profile = "Profile $(echo test);'"
                 try check(LaunchConfiguration(browser: .chrome, profile: profile, extensionID: identifier).arguments()[0] == "--profile-directory=\(profile)", "Literal argument")
             })
-        ]
+        ] + ExtensionDiscoveryTests.cases
         print("1..\(cases.count)")
         for (index, entry) in cases.enumerated() {
             try entry.1()

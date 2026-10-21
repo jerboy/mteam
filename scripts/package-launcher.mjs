@@ -17,7 +17,7 @@ try {
   await mkdir(join(contents, 'Resources'), { recursive: true });
   for (const arch of ['arm64', 'x86_64']) {
     execFileSync('swiftc', ['-O', '-target', `${arch}-apple-macos13.0`,
-      'launcher/macos/Sources/LauncherCore/LaunchConfiguration.swift', 'launcher/macos/App/main.swift',
+      'launcher/macos/Sources/LauncherCore/LaunchConfiguration.swift', 'launcher/macos/Sources/LauncherCore/ExtensionDiscovery.swift', 'launcher/macos/App/main.swift',
       '-framework', 'AppKit', '-o', join(temporary, arch)], { stdio: 'inherit' });
   }
   execFileSync('lipo', ['-create', join(temporary, 'arm64'), join(temporary, 'x86_64'), '-output', join(contents, 'MacOS', 'MTeamLauncher')]);

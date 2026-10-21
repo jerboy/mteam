@@ -7,7 +7,8 @@ const directory = await mkdtemp(join(tmpdir(), 'mteam-launcher-unit-'));
 try {
   const executable = join(directory, 'configuration-tests');
   execFileSync('swiftc', ['launcher/macos/Sources/LauncherCore/LaunchConfiguration.swift',
-    'launcher/macos/Tests/LaunchConfigurationTests.swift', '-o', executable], { stdio: 'inherit' });
+    'launcher/macos/Sources/LauncherCore/ExtensionDiscovery.swift',
+    'launcher/macos/Tests/LaunchConfigurationTests.swift', 'launcher/macos/Tests/ExtensionDiscoveryTests.swift', '-o', executable], { stdio: 'inherit' });
   // This executable contains only pure configuration unit tests, never the app entry point.
   execFileSync(executable, [], { stdio: 'inherit' });
 } finally { await rm(directory, { recursive: true, force: true }); }

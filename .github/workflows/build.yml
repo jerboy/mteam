@@ -113,7 +113,7 @@ jobs:
           更新时将文件覆盖到原安装目录，再点击「重新加载」，保留原扩展 ID 和设置。
           `.sha256` 文件用于校验 ZIP。无需启动服务器。
 
-          macOS 独立入口：另下载 `mteam-launcher-macos-*.zip`，将其中的应用放入「应用程序」。首次打开填写浏览器、个人资料目录名和扩展 ID；按住 Option 再打开可修改。需先安装或更新扩展至本版本。支持 macOS 13+ 的 Apple Silicon 与 Intel。
+          macOS 独立入口：另下载 `mteam-launcher-macos-*.zip`，将其中的应用放入「应用程序」。首次打开选择浏览器和个人资料，扩展 ID 每次启动自动识别，换目录重新加载后自动更新；按住 Option 再打开可修改。macOS 限制读取时，通过系统文件选择框允许访问。需先安装或更新扩展至本版本。支持 macOS 13+ 的 Apple Silicon 与 Intel。
           启动器尚未经过 Apple 公证；如 macOS 阻止打开，请到「系统设置 → 隐私与安全性」确认打开。窗口仍由 Chrome / Edge 管理。
           NOTES
           gh release create "$RELEASE_TAG" release/*.zip release/*.sha256 \

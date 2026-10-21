@@ -1,4 +1,4 @@
-# M-Team 资源助手 · 1.10.0
+# M-Team 资源助手 · 1.11.0
 
 Chrome / Edge 的 Manifest V3 浏览器扩展。支持搜索、筛选、排序、分页、海报、资源详情、多台 qBittorrent 下载与任务管理、复制下载链接、下载种子、结果刷新和定期打开官网。无需服务端、无需构建运行依赖。
 
@@ -10,7 +10,7 @@ Chrome / Edge 的 Manifest V3 浏览器扩展。支持搜索、筛选、排序�
 
 右上角的展开按钮打开独立窗口，初始大小 1080 × 800，可自由调整。资源详情、设置与返回搜索均在该窗口内切换；重复打开会唤起已有窗口，最小化时恢复显示。普通扩展弹窗保持原有操作方式。
 
-macOS 用户可在同一 Release 下载 `mteam-launcher-macos-*.zip`，将应用放入「应用程序」或拖入 Dock。首次打开填写浏览器、个人资料目录名和扩展 ID；按住 Option 打开可修改。需要 macOS 13+ 和本扩展 1.10.0+，支持 Apple Silicon / Intel。入口复用原浏览器配置，不保存 API Key；窗口仍由 Chrome / Edge 管理。安装细节见 [项目文档](https://github.com/jerboy/mteam#macos-独立入口)。
+macOS 用户可在同一 Release 下载 `mteam-launcher-macos-*.zip`，将应用放入「应用程序」或拖入 Dock。首次打开选择浏览器和个人资料，扩展 ID 每次启动自动识别，换目录重新加载后自动更新；按住 Option 打开可修改浏览器和个人资料。macOS 限制读取时，通过系统文件选择框允许访问个人资料文件夹。需要 macOS 13+ 和本扩展 1.10.0+，支持 Apple Silicon / Intel。入口复用原浏览器配置，不保存 API Key；窗口仍由 Chrome / Edge 管理。安装细节见 [项目文档](https://github.com/jerboy/mteam#macos-独立入口)。
 
 ## 配置与使用
 
