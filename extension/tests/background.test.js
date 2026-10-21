@@ -18,6 +18,9 @@ test('background accepts only its own UI, limits configuration edits to settings
   await import('../background.js');
   assert.equal(listener({ type: 'config.status' }, { id: 'other-id', url: root + 'popup.html' }, () => assert.fail('foreign sender accepted')), false);
   assert.equal(listener({ type: 'config.status' }, { id: 'test-id', url: 'https://evil.example' }, () => assert.fail('web sender accepted')), false);
+  for (const type of ['config.status', 'config.save', 'downloaders.save', 'download', 'activity.visit']) {
+    assert.equal(listener({ type }, { id: 'test-id', url: root + 'launch.html' }, () => assert.fail('launcher accepted a non-launch action')), false);
+  }
   let denied;
   listener({ type: 'config.clear' }, { id: 'test-id', url: root + 'popup.html' }, value => { denied = value; });
   assert.equal(denied.error.code, 'FORBIDDEN'); assert.ok(memory.config.apiKey);
@@ -35,9 +38,29 @@ test('background accepts only its own UI, limits configuration edits to settings
     listener({ type }, { id: 'test-id', url: root + 'detail.html?id=123' }, value => { denied = value; });
     assert.equal(denied.error.code, 'FORBIDDEN');
   }
+  listener({ type: 'config.clear' }, { id: 'test-id', url: root + 'popup.html?view=app' }, value => { denied = value; });
+  assert.equal(denied.error.code, 'FORBIDDEN');
   for (const url of [root + 'detail.html.evil', root + 'detail.html/extra', 'https://example.org/detail.html?id=123']) {
     assert.equal(listener({ type: 'config.status' }, { id: 'test-id', url }, () => assert.fail('foreign page accepted')), false);
   }
+  const removed = [], created = [];
+  chrome.storage.session = { async get() { return {}; }, async set() {} };
+  chrome.windows = {
+    async getAll() { return []; },
+    async create(options) { created.push(options); return { id: 42 }; }
+  };
+  chrome.tabs.get = async id => ({ id, url: root + 'launch.html' });
+  chrome.tabs.remove = async id => { removed.push(id); };
+  const launched = await new Promise(resolve => listener({ type: 'open.app', tabId: 999 }, { id: 'test-id', url: root + 'launch.html', tab: { id: 7 } }, resolve));
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(launched.ok, true); assert.equal(launched.data.windowId, 42);
+  assert.deepEqual(removed, [7]); assert.equal(created[0].type, 'popup');
+  // A normal extension page must not be closed, even if the request supplies a tab ID.
+  await new Promise(resolve => listener({ type: 'open.app', tabId: 999 }, { id: 'test-id', url: root + 'popup.html', tab: { id: 8 } }, resolve));
+  assert.deepEqual(removed, [7]);
+  chrome.windows.create = async () => { throw new Error('Unavailable'); };
+  const failed = await new Promise(resolve => listener({ type: 'open.app' }, { id: 'test-id', url: root + 'launch.html', tab: { id: 9 } }, resolve));
+  assert.equal(failed.ok, false); assert.deepEqual(removed, [7]);
   const cleared = await new Promise(resolve => listener({ type: 'config.clear' }, { id: 'test-id', url: root + 'options.html' }, resolve));
   assert.equal(cleared.ok, true); assert.equal(memory.config, undefined);
   delete globalThis.chrome;
@@ -52,5 +75,5 @@ test('installable MV3 package has all entrypoints and downloader hosts require o
   assert.equal(manifest.permissions.includes('cookies'), false);
   assert.deepEqual(manifest.optional_host_permissions, ['http://*/*', 'https://*/*']);
   assert.ok(manifest.permissions.includes('declarativeNetRequestWithHostAccess'));
-  for (const file of [manifest.background.service_worker, manifest.action.default_popup, manifest.options_ui.page, 'detail.html', 'detail.js', 'detail-page.js', ...Object.values(manifest.icons)]) await access(new URL(file, root));
+  for (const file of [manifest.background.service_worker, manifest.action.default_popup, manifest.options_ui.page, 'detail.html', 'detail.js', 'detail-page.js', 'launch.html', 'launch.js', ...Object.values(manifest.icons)]) await access(new URL(file, root));
 });

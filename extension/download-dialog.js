@@ -1,3 +1,4 @@
+import { openSettings } from './lib/navigation.js';
 import { $, notice, rpc } from './lib/ui.js';
 import { downloadPath } from './lib/qbittorrent.js';
 import { directoryValue } from './lib/path-completion.js';
@@ -103,7 +104,7 @@ export function createDownloadDialog(toast) {
       picker.update();
     }
   });
-  $('setup-downloader').addEventListener('click', () => chrome.runtime.openOptionsPage());
+  $('setup-downloader').addEventListener('click', () => openSettings());
   $('close-send').addEventListener('click', () => { if (!sending) dialog.close(); });
   dialog.addEventListener('cancel', event => { if (sending) event.preventDefault(); });
   dialog.addEventListener('close', () => { ++loadId; picker.setContext(null); });

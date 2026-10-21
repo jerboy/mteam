@@ -1,4 +1,4 @@
-import { formatSize, torrentId } from './lib/core.js';
+import { formatSize } from './lib/core.js';
 import { $, node, rpc, notice, promotion, formatDate } from './lib/ui.js';
 import { createPoster } from './lib/poster.js';
 import { RefreshLoop } from './lib/refresh.js';
@@ -6,8 +6,9 @@ import { createDownloadDialog } from './download-dialog.js';
 import { createTaskCenter } from './task-center.js';
 import { createImagePreview } from './image-preview.js';
 import { createLinkCopy } from './link-copy.js';
+import { detailPath, isAppView, openSettings } from './lib/navigation.js';
 
-if (new URLSearchParams(location.search).get('view') === 'tab') document.body.classList.add('tab-view');
+if (['tab', 'app'].includes(new URLSearchParams(location.search).get('view'))) document.body.classList.add('tab-view');
 const state = { result: null, query: null, categories: [], direction: 'DESC', busy: false, revision: '' };
 let toastTimer;
 const downloadDialog = createDownloadDialog(toast);
@@ -36,7 +37,7 @@ function empty(title, text, setup = false) {
   symbol.setAttribute('aria-hidden', 'true');
   root.append(symbol, node('h3', '', title));
   if (text) root.append(node('p', '', text));
-  if (setup) { const button = node('button', 'button secondary', '前往设置'); button.addEventListener('click', () => chrome.runtime.openOptionsPage()); root.append(button); }
+  if (setup) { const button = node('button', 'button secondary', '前往设置'); button.addEventListener('click', () => openSettings()); root.append(button); }
   $('results').replaceChildren(root);
 }
 
@@ -111,8 +112,8 @@ function resultCard(item) {
   } });
   const info = node('div', 'result-info');
   const title = node('a', 'result-title', item.name); title.title = item.name;
-  title.href = chrome.runtime.getURL(`detail.html?id=${torrentId(item.id)}`);
-  title.target = '_blank'; title.rel = 'noopener';
+  title.href = chrome.runtime.getURL(detailPath(item.id));
+  title.target = isAppView() ? '_self' : '_blank'; title.rel = 'noopener';
   info.append(title);
   if (item.subtitle) info.append(node('p', 'result-subtitle', item.subtitle));
   const meta = node('div', 'result-meta');
@@ -171,11 +172,11 @@ async function search(query, pageNumber = 1, { fresh = false } = {}) {
   }
 }
 
-$('settings').addEventListener('click', () => chrome.runtime.openOptionsPage());
+$('settings').addEventListener('click', () => openSettings());
 $('open-tasks').addEventListener('click', () => taskCenter.open());
 $('auto-refresh').addEventListener('change', () => refreshLoop.setInterval(Number($('auto-refresh').value)));
 $('refresh-results').addEventListener('click', () => { if (state.result) search(state.query, state.result.pageNumber, { fresh: true }); });
-$('dashboard').addEventListener('click', () => withAction($('dashboard'), () => rpc('open.dashboard')));
+$('dashboard').addEventListener('click', () => withAction($('dashboard'), () => rpc('open.app')));
 $('search-form').addEventListener('submit', event => { event.preventDefault(); closeFilters(); search(currentQuery()); });
 $('sort').addEventListener('change', () => { if (state.result) search(currentQuery()); });
 $('direction').addEventListener('click', () => { state.direction = state.direction === 'DESC' ? 'ASC' : 'DESC'; renderDirection(); if (state.result) search(currentQuery()); });

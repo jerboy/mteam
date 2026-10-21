@@ -1,3 +1,4 @@
+import { openSettings } from './lib/navigation.js';
 import { $, node, notice, rpc as defaultRpc } from './lib/ui.js';
 import { RefreshLoop } from './lib/refresh.js';
 import { taskIdentity, taskMetrics, taskStatus } from './lib/tasks.js';
@@ -137,7 +138,7 @@ export function createTaskCenter({ rpc = defaultRpc, timerOptions = {} } = {}) {
     if (reading || deleting || (step < 0 ? !page : !hasMore)) return;
     reset(page + step); return refresh();
   });
-  $('tasks-setup').addEventListener('click', () => chrome.runtime.openOptionsPage());
+  $('tasks-setup').addEventListener('click', () => openSettings());
   $('close-tasks').addEventListener('click', () => { if (!deleting) dialog.close(); });
   dialog.addEventListener('cancel', event => { if (deleting) event.preventDefault(); });
   dialog.addEventListener('close', () => { ++generation; queued = false; loop.setInterval(0); });

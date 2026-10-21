@@ -1,6 +1,12 @@
 import { DEFAULT_CONFIG } from './lib/core.js';
 import { $, notice, rpc } from './lib/ui.js';
 import './downloader-options.js';
+import { isAppView, searchPath } from './lib/navigation.js';
+
+if (isAppView()) {
+  $('open-search').textContent = '返回资源';
+  $('open-search').setAttribute('data-icon', 'chevron-left');
+}
 
 let savedConfig = {};
 let active = false;
@@ -57,7 +63,10 @@ $('reveal-key').addEventListener('click', () => {
   const reveal = $('api-key').type === 'password'; $('api-key').type = reveal ? 'text' : 'password';
   $('reveal-key').textContent = reveal ? '隐藏' : '显示'; $('reveal-key').setAttribute('aria-label', `${reveal ? '隐藏' : '显示'}输入的 API Key`);
 });
-$('open-search').addEventListener('click', () => action(() => rpc('open.dashboard')));
+$('open-search').addEventListener('click', () => {
+  if (isAppView()) location.assign(chrome.runtime.getURL(searchPath()));
+  else action(() => rpc('open.app'));
+});
 
 $('visit-form').addEventListener('submit', event => {
   event.preventDefault();

@@ -6,6 +6,7 @@
 简约的 Chrome / Edge 浏览器扩展。搜索 M-Team 资源，并直接发送到自己的 qBittorrent 下载器。无需服务端或运行依赖。
 
 - 搜索、筛选、排序与独立资源详情页，BBCode 简介优先并兼容 Markdown；图片预览支持滚轮缩放、拖动和左右切换。
+- 独立窗口与 macOS 桌面入口，重复启动唤起已有窗口，沿用浏览器中的配置。
 - 多台 qBittorrent，默认使用用户名和密码，也支持 qBittorrent 5.2+ API Key。
 - 可编辑的默认下载路径，远程目录补全、Tab 逐层选择与最近路径建议。
 - 下载任务中心：进度、速度、状态，以及确认后删除任务及文件。
@@ -23,6 +24,14 @@
 
 详细使用、认证和权限说明见 [扩展文档](extension/README.md)。配置保存在本机浏览器中；发布包不包含账号凭据。网页访问沿用浏览器登录态，API 刷新不等同于网页登录，定期访问不保证账号保留。
 
+### macOS 独立入口
+
+扩展右上角的展开按钮可打开独立窗口。需要桌面或 Dock 入口时，在同一 Release 下载 `mteam-launcher-macos-*.zip`，解压并将 `M-Team 资源助手.app` 放入「应用程序」。首次打开选择 Chrome / Edge，填写个人资料目录名与扩展 ID。目录名取自 `chrome://version` / `edge://version` 的「个人资料路径」最后一段（例如 `Default`、`Profile 1`）；扩展 ID 可在扩展管理页开启开发者模式后查看。
+
+启动器支持 macOS 13+、Apple Silicon 和 Intel；需要先加载 1.10.0 或更新版本的扩展。可将应用拖入 Dock，或在桌面创建替身。按住 Option 打开可更换浏览器、个人资料或扩展 ID。启动器仅保存这三个入口信息，不读取浏览器资料文件或保存账号密钥。更换本地扩展安装目录导致 ID 变化时，应重新绑定入口。
+
+启动器经过临时签名，尚未经过 Apple 公证；下载后如果 macOS 阻止打开，可到「系统设置 → 隐私与安全性」确认打开。窗口和任务仍由浏览器管理，运行时可能归在 Chrome / Edge 的 Dock 图标下。浏览器关闭时，入口会先启动浏览器；已开启时复用原窗口。无需本地服务器。
+
 ## 开发
 
 需要 Node.js 20.19+ 和 `zip` 命令：
@@ -34,6 +43,16 @@ npm run package
 ```
 
 打包结果为 `release/mteam-extension-<版本>.zip` 和对应的 `.sha256` 校验文件。
+
+在 macOS 编译和安装桌面启动器（需要 Xcode Command Line Tools）：
+
+```sh
+npm run test:launcher
+npm run package:launcher
+npm run install:launcher
+```
+
+构建生成通用 `.app`、`mteam-launcher-macos-<版本>.zip` 和 SHA-256 文件；本地安装到 `~/Applications`，不启动应用或浏览器。Swift 单元测试只验证入口配置与参数。启动器配置位于 `~/Library/Application Support/M-Team Launcher/config.json`，不会包含在发布包中。
 
 简介优先解析 BBCode；没有可识别的 BBCode 时，使用 [Marked](https://marked.js.org/using_pro) 的词法解析器兼容 Markdown。两者均通过受限 DOM 节点渲染，不插入站点提供的 HTML。格式依据、支持范围和降级规则见 [简介格式](docs/description-format.md)。Marked 18.1.1 与 MIT 许可证随扩展本地分发。升级锁定依赖后运行 `npm run vendor` 同步文件；单元测试会校验一致性。LinkeDOM 仅用于内存 DOM 单元测试，不进入扩展包。
 
@@ -67,7 +86,7 @@ git tag -a v1.7.0 -m "Release v1.7.0"
 git push origin v1.7.0
 ```
 
-将示例版本替换为尚未发布的新版本。标签必须与三个文件中的版本完全一致。标签触发的工作流会在单元测试通过后打包，并自动创建带 ZIP 和 SHA-256 校验文件的 GitHub Release，使用内置 `GITHUB_TOKEN`，无需配置个人令牌。
+将示例版本替换为尚未发布的新版本。标签必须与三个文件中的版本完全一致。标签触发的工作流会在单元测试通过后打包，并自动创建带扩展、macOS 通用启动器 ZIP 和 SHA-256 校验文件的 GitHub Release，使用内置 `GITHUB_TOKEN`，无需配置个人令牌。
 
 ## 许可证
 
