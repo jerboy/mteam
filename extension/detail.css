@@ -1,0 +1,24 @@
+/* One reading surface; only the page itself scrolls vertically. */
+.detail-page { min-height: 100dvh; background: var(--surface); }
+.detail-workspace { max-width: 960px; margin: 0 auto; padding: 0 var(--space-8) var(--space-8); }
+.detail-topbar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: 68px; border-bottom: 1px solid var(--line); background: var(--surface); }
+#back-to-results { margin-left: -8px; text-decoration: none; color: var(--muted); }
+.detail-topbar .header-actions { gap: var(--space-2); }
+.detail-topbar .button { margin-left: var(--space-1); }
+#detail-main { min-width: 0; padding-top: var(--space-8); }
+.detail-heading { padding-bottom: var(--space-6); margin-bottom: var(--space-6); border-bottom: 1px solid var(--line); }
+#detail-title { font-size: 24px; line-height: 1.5; font-weight: 650; letter-spacing: -.3px; overflow-wrap: anywhere; }
+#detail-subtitle { margin-top: var(--space-3); font-size: 13px; overflow-wrap: anywhere; }
+.detail-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; margin-top: var(--space-4); color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.detail-meta > span { overflow-wrap: anywhere; }
+#detail-description { font-size: 14px; line-height: 1.8; }
+#detail-description .description-image img { max-height: 560px; }
+.detail-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-3); min-height: 240px; color: var(--muted); text-align: center; }
+.detail-state.error { color: var(--warning); }
+@media (max-width: 600px) {
+  .detail-workspace { padding: 0 var(--space-4) var(--space-6); }
+  .detail-topbar { min-height: 60px; }
+  #detail-main { padding-top: var(--space-6); }
+  #detail-title { font-size: 20px; }
+  .detail-topbar .header-actions { gap: var(--space-1); }
+}

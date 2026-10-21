@@ -1,24 +1,25 @@
-import { formatSize } from './lib/core.js';
+import { formatSize, torrentId } from './lib/core.js';
 import { $, node, rpc, notice, promotion, formatDate } from './lib/ui.js';
 import { createPoster } from './lib/poster.js';
 import { RefreshLoop } from './lib/refresh.js';
 import { createDownloadDialog } from './download-dialog.js';
 import { createTaskCenter } from './task-center.js';
-import { renderMarkdown } from './lib/markdown.js';
 import { createImagePreview } from './image-preview.js';
+import { createLinkCopy } from './link-copy.js';
 
 if (new URLSearchParams(location.search).get('view') === 'tab') document.body.classList.add('tab-view');
-const state = { result: null, query: null, categories: [], direction: 'DESC', busy: false, revision: '', detail: null };
+const state = { result: null, query: null, categories: [], direction: 'DESC', busy: false, revision: '' };
 let toastTimer;
 const downloadDialog = createDownloadDialog(toast);
 const taskCenter = createTaskCenter();
 const imagePreview = createImagePreview(document);
+const linkCopy = createLinkCopy({ document, notify: toast });
 const refreshLoop = new RefreshLoop(() => search(state.query, state.result.pageNumber, { fresh: true }), {
-  canRun: () => state.result && !state.busy && $('filter-panel').hidden && document.visibilityState === 'visible' && !$('detail-dialog').open && !$('link-dialog').open && !$('send-dialog').open && !$('tasks-dialog').open && !$('image-dialog').open
+  canRun: () => state.result && !state.busy && $('filter-panel').hidden && document.visibilityState === 'visible' && !$('link-dialog').open && !$('send-dialog').open && !$('tasks-dialog').open && !$('image-dialog').open
 });
 
 function toast(text, error = false) {
-  const target = $('link-dialog').open ? $('link-status') : $('detail-dialog').open ? $('detail-status') : null;
+  const target = $('link-dialog').open ? $('link-status') : null;
   if (target) { target.textContent = text; target.classList.toggle('error', error); target.hidden = false; return; }
   $('toast').textContent = text; $('toast').hidden = false;
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 3500);
@@ -90,7 +91,7 @@ async function withAction(button, task) {
   button.disabled = true; button.setAttribute('aria-busy', 'true');
   if (changeLabel) button.textContent = '处理中…';
   try { await task(); } catch (error) {
-    if ($('link-dialog').open || $('detail-dialog').open) { toast(error.message, true); }
+    if ($('link-dialog').open) { toast(error.message, true); }
     else notice($('notice'), error.message);
   }
   finally {
@@ -99,27 +100,8 @@ async function withAction(button, task) {
   }
 }
 
-async function copyLink(item) {
-  const { url } = await rpc('link', { id: item.id });
-  try { await navigator.clipboard.writeText(url); toast('下载链接已复制'); }
-  catch { $('download-link').value = url; $('link-status').hidden = true; $('link-dialog').showModal(); $('download-link').select(); }
-}
-
 async function download(item) {
   await downloadDialog.open(item);
-}
-
-async function showDetail(item) {
-  const detail = await rpc('detail', { id: item.id });
-  state.detail = detail;
-  $('detail-status').hidden = true;
-  $('detail-title').textContent = detail.name; $('detail-subtitle').textContent = detail.subtitle;
-  const metadata = [formatSize(detail.size), `↑ ${detail.seeders} 做种`, `↓ ${detail.leechers} 下载`, categoryName(detail.category), formatDate(detail.createdDate)];
-  const promo = promotion(detail);
-  if (promo) metadata.push(`${promo}${detail.discountEndTime ? ` · 截止 ${detail.discountEndTime}` : ''}`);
-  $('detail-meta').replaceChildren(...metadata.map(value => node('span', '', value)));
-  renderMarkdown($('detail-description'), detail.description, { onPreview: imagePreview.open });
-  $('detail-dialog').showModal();
 }
 
 function resultCard(item) {
@@ -128,8 +110,9 @@ function resultCard(item) {
     imagePreview.open(url, label, trigger, state.result.items.map(resource => ({ url: resource.posterUrl, label: resource.name })));
   } });
   const info = node('div', 'result-info');
-  const title = node('button', 'result-title', item.name); title.title = item.name;
-  title.addEventListener('click', () => withAction(title, () => showDetail(item)));
+  const title = node('a', 'result-title', item.name); title.title = item.name;
+  title.href = chrome.runtime.getURL(`detail.html?id=${torrentId(item.id)}`);
+  title.target = '_blank'; title.rel = 'noopener';
   info.append(title);
   if (item.subtitle) info.append(node('p', 'result-subtitle', item.subtitle));
   const meta = node('div', 'result-meta');
@@ -140,7 +123,7 @@ function resultCard(item) {
   const actions = node('div', 'result-actions');
   const copy = node('button', 'icon-button');
   copy.setAttribute('data-icon', 'copy'); copy.setAttribute('aria-label', `复制下载链接：${item.name}`); copy.title = '复制下载链接';
-  copy.addEventListener('click', () => withAction(copy, () => copyLink(item)));
+  copy.addEventListener('click', () => withAction(copy, () => linkCopy.copy(item)));
   const save = node('button', 'button download-action', '下载');
   save.setAttribute('data-icon', 'download'); save.setAttribute('aria-label', `下载：${item.name}`);
   save.addEventListener('click', () => withAction(save, () => download(item)));
@@ -215,16 +198,6 @@ document.addEventListener('keydown', event => {
 });
 $('previous').addEventListener('click', () => search(state.query, state.result.pageNumber - 1));
 $('next').addEventListener('click', () => search(state.query, state.result.pageNumber + 1));
-$('close-detail').addEventListener('click', () => $('detail-dialog').close());
-$('close-link').addEventListener('click', () => { $('link-dialog').close(); $('download-link').value = ''; });
-$('link-dialog').addEventListener('close', () => { $('download-link').value = ''; });
-$('detail-copy').addEventListener('click', () => withAction($('detail-copy'), () => copyLink(state.detail)));
-$('detail-download').addEventListener('click', () => withAction($('detail-download'), () => download(state.detail)));
-$('detail-open').addEventListener('click', () => withAction($('detail-open'), () => rpc('open.detail', { id: state.detail.id })));
-$('copy-again').addEventListener('click', () => withAction($('copy-again'), async () => {
-  try { await navigator.clipboard.writeText($('download-link').value); $('link-dialog').close(); toast('下载链接已复制'); }
-  catch { $('download-link').select(); throw new Error('自动复制不可用，请选中链接后按 Ctrl/Cmd+C。'); }
-}));
 for (const dialog of document.querySelectorAll('dialog')) dialog.addEventListener('click', event => { if (event.target === dialog && !(dialog.id === 'send-dialog' && downloadDialog.isSending())) { const rect = dialog.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close(); } });
 
 async function initialize() {

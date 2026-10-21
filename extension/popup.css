@@ -47,7 +47,7 @@ button.resource-poster:disabled { opacity: 1; }
 .resource-poster.has-poster img { opacity: 1; }
 .resource-poster.has-poster .poster-placeholder { display: none; }
 .result-info { min-width: 0; }
-.result-title { display: block; max-width: 100%; padding: 0; border: 0; background: none; color: var(--ink); text-align: left; font-size: 13px; line-height: 1.6; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.result-title { display: block; max-width: 100%; padding: 0; border: 0; background: none; color: var(--ink); text-align: left; text-decoration: none; font-size: 13px; line-height: 1.6; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .result-title:hover { color: var(--accent); }
 .result-subtitle { margin-top: 2px; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .result-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; margin-top: 6px; color: var(--muted); font-size: 11px; line-height: 18px; font-variant-numeric: tabular-nums; }

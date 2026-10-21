@@ -15,7 +15,7 @@ const handle = createService({
 });
 
 chrome.runtime.onMessage.addListener((message, sender, respond) => {
-  const allowed = ['popup.html', 'options.html'].map(path => chrome.runtime.getURL(path));
+  const allowed = ['popup.html', 'detail.html', 'options.html'].map(path => chrome.runtime.getURL(path));
   const senderPage = String(sender.url || '').split('?')[0].split('#')[0];
   if (sender.id !== chrome.runtime.id || !allowed.includes(senderPage)) return false;
   if (((message?.type?.startsWith('config.') && message.type !== 'config.status') ||

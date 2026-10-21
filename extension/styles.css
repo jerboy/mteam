@@ -132,12 +132,6 @@ dialog::backdrop { background: #20212438; backdrop-filter: blur(3px); }
 .dialog-header .icon-button { margin-right: -6px; background: var(--surface-secondary); border-radius: 50%; }
 .dialog-header .icon-button:hover { background: var(--surface-hover); }
 .dialog-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-6); }
-#detail-open { margin-right: auto; }
-.detail-label { color: var(--muted); font-size: 12px; font-weight: 500; }
-#detail-title { font-size: 18px; line-height: 1.5; font-weight: 600; overflow-wrap: anywhere; }
-#detail-subtitle { margin-top: var(--space-2); }
-.detail-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: var(--space-4) 0 var(--space-5); color: var(--muted); font-size: 12px; }
-.detail-meta > span { white-space: nowrap; }
 #download-link { background: var(--surface-secondary); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
 
 /* Settings: one column of grouped, aligned forms. */

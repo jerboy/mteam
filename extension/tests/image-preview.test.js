@@ -52,7 +52,7 @@ function transform(img) {
 
 test('image preview opens an isolated modal and returns focus when closed', () => {
   const { get, dialog, trigger, preview, Event, focused } = fixture();
-  get('detail-dialog').open = true;
+  get('link-dialog').open = true;
   assert.equal(preview.open('https://example.org/a.png', '海报', trigger), true);
   assert.equal(dialog.open, true);
   assert.equal(focused(), get('close-image'));
@@ -67,7 +67,7 @@ test('image preview opens an isolated modal and returns focus when closed', () =
   assert.equal(get('image-stage').getAttribute('aria-busy'), null);
   get('close-image').dispatchEvent(new Event('click'));
   assert.equal(dialog.open, false);
-  assert.equal(get('detail-dialog').open, true);
+  assert.equal(get('link-dialog').open, true);
   assert.equal(focused(), trigger);
   assert.equal(img.getAttribute('src'), null);
   assert.equal(get('image-stage').childNodes.length, 0);

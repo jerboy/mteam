@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, access } from 'node:fs/promises';
 
-test('background accepts only its own UI, prevents popup credential edits and never returns keys', async () => {
+test('background accepts only its own UI, limits configuration edits to settings and never returns keys', async () => {
   const memory = { config: { apiKey: 'private-test-key' } };
   let listener;
   const root = 'chrome-extension://test-id/';
@@ -29,6 +29,15 @@ test('background accepts only its own UI, prevents popup credential edits and ne
   }
   const status = await new Promise(resolve => listener({ type: 'config.status' }, { id: 'test-id', url: root + 'popup.html?view=tab' }, resolve));
   assert.equal(status.ok, true); assert.equal(JSON.stringify(status).includes(memory.config.apiKey), false);
+  const detailStatus = await new Promise(resolve => listener({ type: 'config.status' }, { id: 'test-id', url: root + 'detail.html?id=123#intro' }, resolve));
+  assert.equal(detailStatus.ok, true); assert.equal(JSON.stringify(detailStatus).includes(memory.config.apiKey), false);
+  for (const type of ['config.save', 'config.clear', 'activity.configure', 'downloaders.save', 'downloaders.remove']) {
+    listener({ type }, { id: 'test-id', url: root + 'detail.html?id=123' }, value => { denied = value; });
+    assert.equal(denied.error.code, 'FORBIDDEN');
+  }
+  for (const url of [root + 'detail.html.evil', root + 'detail.html/extra', 'https://example.org/detail.html?id=123']) {
+    assert.equal(listener({ type: 'config.status' }, { id: 'test-id', url }, () => assert.fail('foreign page accepted')), false);
+  }
   const cleared = await new Promise(resolve => listener({ type: 'config.clear' }, { id: 'test-id', url: root + 'options.html' }, resolve));
   assert.equal(cleared.ok, true); assert.equal(memory.config, undefined);
   delete globalThis.chrome;
@@ -43,5 +52,5 @@ test('installable MV3 package has all entrypoints and downloader hosts require o
   assert.equal(manifest.permissions.includes('cookies'), false);
   assert.deepEqual(manifest.optional_host_permissions, ['http://*/*', 'https://*/*']);
   assert.ok(manifest.permissions.includes('declarativeNetRequestWithHostAccess'));
-  for (const file of [manifest.background.service_worker, manifest.action.default_popup, manifest.options_ui.page, ...Object.values(manifest.icons)]) await access(new URL(file, root));
+  for (const file of [manifest.background.service_worker, manifest.action.default_popup, manifest.options_ui.page, 'detail.html', 'detail.js', 'detail-page.js', ...Object.values(manifest.icons)]) await access(new URL(file, root));
 });

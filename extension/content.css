@@ -1,5 +1,4 @@
 /* Resource content follows the same type scale and spacing as the surrounding UI. */
-#detail-description { max-height: min(320px, 42dvh); overflow: auto; margin-top: var(--space-2); padding: var(--space-4); border-radius: var(--radius-md); background: var(--surface-secondary); }
 .markdown-body { color: var(--ink); font-size: 13px; line-height: 1.75; overflow-wrap: anywhere; }
 .markdown-body > :first-child { margin-top: 0; }
 .markdown-body > :last-child { margin-bottom: 0; }

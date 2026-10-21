@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>资源详情 · M-Team</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="downloaders.css">
+  <link rel="stylesheet" href="content.css">
+  <link rel="stylesheet" href="detail.css">
+  <script type="module" src="detail.js"></script>
+</head>
+<body class="detail-page">
+  <div class="detail-workspace">
+    <header class="detail-topbar">
+      <a id="back-to-results" class="text-button" data-icon="chevron-left" href="popup.html?view=tab">返回资源</a>
+      <nav class="header-actions" aria-label="资源操作">
+        <button id="detail-open" class="icon-button" data-icon="expand" title="打开站点" aria-label="打开站点" disabled></button>
+        <button id="detail-copy" class="icon-button" data-icon="copy" title="复制下载链接" aria-label="复制下载链接" disabled></button>
+        <button id="detail-download" class="button primary" data-icon="download" disabled>下载</button>
+      </nav>
+    </header>
+    <main id="detail-main" aria-busy="true">
+      <div id="detail-state" class="detail-state">
+        <p id="detail-message" role="status">加载中…</p>
+        <button id="detail-retry" class="text-button" hidden>重试</button>
+        <button id="detail-setup" class="text-button" hidden>前往设置</button>
+      </div>
+      <article id="detail-content" aria-labelledby="detail-title" hidden>
+        <header class="detail-heading">
+          <h1 id="detail-title">资源详情</h1>
+          <p id="detail-subtitle" class="muted" hidden></p>
+          <div id="detail-meta" class="detail-meta"></div>
+        </header>
+        <section aria-label="资源简介"><div id="detail-description" class="markdown-body"></div></section>
+      </article>
+    </main>
+  </div>
+  <dialog id="link-dialog" aria-labelledby="link-title"><div class="dialog-header"><h2 id="link-title">下载链接</h2><button id="close-link" class="icon-button" data-icon="close" aria-label="关闭链接"></button></div><label class="sr-only" for="download-link">下载链接</label><textarea id="download-link" readonly rows="4" spellcheck="false"></textarea><p id="link-status" class="dialog-status" role="status" hidden></p><div class="dialog-actions"><button id="copy-again" class="button primary">复制链接</button></div></dialog>
+  <dialog id="image-dialog" aria-label="图片预览">
+    <div class="image-toolbar">
+      <span id="image-count" role="status" hidden></span>
+      <button id="image-zoom" class="text-button" title="还原缩放（0）" aria-label="还原图片缩放" hidden>100%</button>
+      <button id="close-image" class="icon-button" data-icon="close" aria-label="关闭图片预览" autofocus></button>
+    </div>
+    <div id="image-stage" title="滚轮缩放 · 拖动查看 · 双击还原"></div>
+    <button id="image-previous" class="icon-button image-nav" data-icon="chevron-left" title="上一张（←）" aria-label="上一张图片" hidden></button>
+    <button id="image-next" class="icon-button image-nav" data-icon="chevron-right" title="下一张（→）" aria-label="下一张图片" hidden></button>
+    <p id="image-status" role="status" hidden></p>
+  </dialog>
+  <dialog id="send-dialog" aria-labelledby="send-title">
+    <div class="dialog-header"><h2 id="send-title">下载</h2><button id="close-send" class="icon-button" data-icon="close" aria-label="关闭下载"></button></div>
+    <p id="send-resource" class="send-resource"></p>
+    <form id="send-form">
+      <div id="send-empty" class="send-empty" hidden><span>添加你的 qBittorrent</span><button id="setup-downloader" class="button secondary" data-icon="plus" type="button">添加</button></div>
+      <div id="send-fields">
+        <label class="send-field">下载器<select id="send-downloader" required></select></label>
+        <div id="send-custom-field" class="send-field">
+          <div class="send-path-heading"><label for="send-custom-path">下载目录</label><select id="send-location" aria-label="目录来源" disabled hidden></select></div>
+          <input id="send-custom-path" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="send-path-suggestions" maxlength="1024" placeholder="输入路径 · Tab 补全" spellcheck="false" autocomplete="off" required disabled>
+          <div id="send-path-menu" class="path-menu" hidden>
+            <div id="send-path-suggestions" role="listbox" aria-label="匹配目录"></div>
+            <div id="send-path-feedback" class="path-status" hidden><span id="send-path-status" role="status"></span><button id="send-path-retry" class="path-retry" type="button" hidden>重试</button></div>
+          </div>
+        </div>
+        <p id="send-path-preview" class="send-path-preview" hidden></p>
+      </div>
+      <div id="send-status" class="notice" role="status" hidden></div>
+      <div class="send-actions"><button id="save-torrent-file" class="text-button" type="button">保存种子文件</button><button id="send-submit" class="button primary" type="submit" disabled>开始下载</button></div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>
